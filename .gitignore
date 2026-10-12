@@ -1,0 +1,12 @@
+node_modules/
+dist/
+.env
+.env.*
+!.env.example
+logs/
+test-artifacts/
+assets-cache/
+.search-config.json
+preview-dist/
+release/
+*.zip

@@ -1,0 +1,32 @@
+import assert from 'node:assert/strict';
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import {createRequire} from 'node:module';
+import ExcelJS from 'exceljs';
+const require=createRequire(import.meta.url);
+const {chromium}=require('C:/Users/vanc/.cache/codex-runtimes/codex-primary-runtime/dependencies/node/node_modules/playwright');
+const base='http://127.0.0.1:3210',out=path.resolve('test-artifacts');await fs.mkdir(out,{recursive:true});
+const read=url=>fetch(base+'/api'+url).then(async r=>{assert.equal(r.status,200);return r.json();});
+const sites=await read('/sites?limit=100'),site=sites.rows.find(s=>s.id===1),runs=await read('/analysis-runs?site=1');
+assert.ok(site.analysis_count>=1);assert.equal(site.analysis_count,runs.total);assert.ok(site.last_analyzed_at);assert.equal(runs.rows[0].brand,"Doctor's Best");
+assert.equal(sites.rows.filter(s=>s.id!==1&&s.analysis_count>0).length,0);
+const perSite=await read('/sites/1/analysis-runs');assert.equal(perSite.total,runs.total);
+const from=await read('/analysis-runs?from=2026-10-11&to=2026-10-11&site=1');assert.equal(from.total,runs.total);
+assert.equal((await read('/analysis-runs?from=2026-10-12&site=1')).total,0);
+assert.equal((await read('/analysis-runs?search=no-matching-brand-xyz')).total,0);
+const denied=await fetch(base+'/api/jobs',{method:'POST',headers:{'Content-Type':'application/json','X-App-Request':'NutraScope'},body:JSON.stringify({type:'crawl',siteIds:[2],limitPerSite:1,useAi:false})});assert.equal(denied.status,423);assert.equal((await denied.json()).code,'SITE_NOT_APPROVED');
+const e=await fetch(base+'/api/export/analysis-runs?format=xlsx&site=1');assert.equal(e.status,200);const wb=new ExcelJS.Workbook();await wb.xlsx.load(Buffer.from(await e.arrayBuffer()));assert.equal(wb.worksheets[0].rowCount,runs.total+1);assert.equal(wb.worksheets[0].getCell('B2').value,"Doctor's Best");
+const products=await read('/products?site=1&limit=5');assert.ok(products.total>0);assert.ok(products.rows.every(p=>p.site_id===1));assert.ok(products.rows.some(p=>p.image_url));
+const browser=await chromium.launch({headless:true,channel:'msedge'}),context=await browser.newContext({viewport:{width:1440,height:1000},acceptDownloads:true});const page=await context.newPage(),errors=[];page.on('pageerror',e=>errors.push(e.message));
+try{
+ await page.goto(base);await page.waitForSelector('.site-table tbody tr');await page.waitForTimeout(1200);assert.ok(await page.getByText('分析 '+site.analysis_count+' 次',{exact:true}).isVisible());await page.screenshot({path:path.join(out,'site-analysis-counts.png'),fullPage:true});
+ await page.locator('nav').getByRole('button',{name:'分析日志',exact:true}).click();await page.waitForSelector('.run-table tbody tr');assert.ok(await page.getByText('第 1 次',{exact:true}).isVisible());await page.screenshot({path:path.join(out,'analysis-logs-desktop.png'),fullPage:true});
+ await page.getByLabel('日志开始日期').fill('2026-10-12');await page.getByText('暂无分析记录',{exact:true}).waitFor();await page.getByLabel('日志开始日期').fill('');await page.waitForSelector('.run-table tbody tr');
+ await page.getByRole('button',{name:'导出',exact:true}).click();const waitDownload=page.waitForEvent('download');await page.getByRole('button',{name:'Excel 表格',exact:true}).click();await (await waitDownload).saveAs(path.join(out,'analysis-log-export.xlsx'));
+ await page.locator('nav').getByRole('button',{name:'商品库',exact:true}).click();await page.waitForSelector('tbody tr');await page.screenshot({path:path.join(out,'first-site-products.png'),fullPage:true});
+ const image=page.locator('.product-image img').first();await image.waitFor();await image.evaluate(img=>img.decode());assert.equal(await image.evaluate(img=>img.naturalWidth>0),true);
+ await page.locator('tbody tr .brand-cell').first().click();await page.getByRole('dialog',{name:'商品详情'}).waitFor();await page.screenshot({path:path.join(out,'first-site-product-detail.png'),fullPage:true});await page.getByLabel('关闭详情').click();
+ await page.locator('nav').getByRole('button',{name:'站点库',exact:false}).click();await page.getByRole('button',{name:'创建采集任务',exact:true}).click();await page.getByRole('dialog').waitFor();await page.locator('.site-picker label').first().waitFor();assert.equal(await page.locator('.site-picker label').count(),1);assert.match(await page.locator('.site-picker label').textContent(),/Doctor's Best/);await page.getByLabel('关闭任务窗口').click();
+ await page.locator('nav').getByRole('button',{name:'分析日志',exact:true}).click();await page.waitForSelector('.run-table tbody tr');await page.setViewportSize({width:390,height:844});await page.waitForTimeout(400);await page.screenshot({path:path.join(out,'analysis-logs-mobile.png'),fullPage:true});assert.equal(await page.evaluate(()=>document.documentElement.scrollWidth<=innerWidth),true);
+ assert.deepEqual(errors,[]);console.log(JSON.stringify({checks:'passed',analysisCount:site.analysis_count,products:products.total,browserErrors:errors},null,2));
+}finally{await browser.close();}

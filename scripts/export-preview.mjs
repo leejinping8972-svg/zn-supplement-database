@@ -1,0 +1,30 @@
+import fs from 'node:fs/promises';
+import path from 'node:path';
+import {pool,jsonValue} from '../server/db.mjs';
+import {appRoot} from '../server/config.mjs';
+
+const out=path.join(appRoot,'preview-data','data');
+const pick=(r,keys)=>Object.fromEntries(keys.split(',').map(k=>[k,r[k]??null]));
+const group=rows=>{const map=new Map();for(const r of rows){if(!map.has(r.product_id))map.set(r.product_id,[]);map.get(r.product_id).push(r);}return map;};
+const write=(name,data)=>fs.writeFile(path.join(out,name),JSON.stringify(data));
+try{
+ await fs.mkdir(path.join(out,'products'),{recursive:true});
+ // Explicit allowlists: never publish connection settings, keys, private notes or audit actors.
+ const [sites]=await pool.query('SELECT id,display_order,brand,url,domain,country,category,intro,main_products,public_address,address_type,country_note,china_status,china_ops,china_summary,china_source,china_quote,company_source,source_date FROM si_sites ORDER BY display_order');
+ const [keywords]=await pool.query('SELECT id,name_zh,name_en,category,aliases,enabled,keyword_type,source,heat_status,search_volume,heat_source,heat_market,heat_date FROM si_keywords');
+ const [products]=await pool.query('SELECT id,site_id,url,name_original,name_zh,translation_status,LEFT(description_text,6000) description_text,CHAR_LENGTH(description_text)>6000 description_truncated,price,currency,dosage_form,serving_size,analysis_status,first_seen_at,last_seen_at FROM si_products ORDER BY id');
+ const [images]=await pool.query('SELECT id,product_id,image_url,alt_text,sort_order FROM si_product_images WHERE sort_order<4 ORDER BY sort_order');
+ const [ingredients]=await pool.query('SELECT id,product_id,name_original,name_zh,canonical_key,amount_text,LEFT(evidence_text,800) evidence_text,evidence_scope,method FROM si_product_ingredients');
+ const [links]=await pool.query('SELECT pk.product_id,k.id,k.name_zh,k.name_en,k.category,k.enabled,pk.matched_term,LEFT(pk.evidence_text,800) evidence_text,pk.evidence_scope FROM si_product_keywords pk JOIN si_keywords k ON k.id=pk.keyword_id WHERE k.enabled=1');
+ const [runs]=await pool.query('SELECT id,site_id,run_number,run_type,status,products_processed,started_at,finished_at FROM si_site_analysis_runs ORDER BY started_at DESC');
+ const im=group(images),ing=group(ingredients),kw=group(links),siteMap=new Map(sites.map(s=>[s.id,s]));
+ const ingredientMap=new Map();for(const i of ingredients){let entry=ingredientMap.get(i.canonical_key);if(!entry){entry={canonical_key:i.canonical_key,name_zh:i.name_zh,ids:new Set(),with_dose:0,label_evidence:0};ingredientMap.set(i.canonical_key,entry);}entry.ids.add(i.product_id);entry.with_dose+=Boolean(i.amount_text);entry.label_evidence+=i.evidence_scope==='label_text';}
+ for(const s of sites){const history=runs.filter(r=>r.site_id===s.id),items=products.filter(p=>p.site_id===s.id);Object.assign(s,{watched:false,notes:'',analysis_count:history.length,last_analyzed_at:history[0]?.started_at||null,last_analysis_status:history[0]?.status||null,products:items.length,last_collected_at:items.reduce((v,p)=>!v||p.last_seen_at>v?p.last_seen_at:v,null)});}
+ const catalog=[];
+ for(let start=0;start<products.length;start+=250){const part=Math.floor(start/250),details={};for(const p of products.slice(start,start+250)){const s=siteMap.get(p.site_id);const allIngredients=ing.get(p.id)||[],allKeywords=kw.get(p.id)||[];const common={...pick(p,'id,site_id,url,name_original,name_zh,translation_status,price,currency,dosage_form,serving_size,analysis_status,first_seen_at,last_seen_at'),brand:s.brand,domain:s.domain,image_url:im.get(p.id)?.[0]?.image_url||null};catalog.push({...common,part,ingredient_keys:[...new Set(allIngredients.map(i=>i.canonical_key))],ingredient_names:[...new Set(allIngredients.flatMap(i=>[i.name_zh,i.name_original]))].join('；'),keywords:allKeywords.map(k=>pick(k,'id,name_zh,evidence_scope'))});details[p.id]={...common,description_text:p.description_text,description_truncated:Boolean(p.description_truncated),images:im.get(p.id)||[],ingredients:allIngredients,keywords:allKeywords.map(k=>({...k,enabled:true})),snapshots:[],analysis:{summary:'公开商品资料快照，中文名称和成分仍以原核验状态为准。',warnings:p.description_truncated?['只读预览中的商品描述展示前6000字符。']:[]}};}await write('products/'+part+'.json',details);}
+ const keywordCounts=new Map();for(const k of links)if(k.evidence_scope!=='warning_or_negation')keywordCounts.set(k.id,(keywordCounts.get(k.id)||0)+1);
+ const countries=[...new Set(sites.map(s=>s.country))].map(country=>({country,count:sites.filter(s=>s.country===country).length}));
+ const overview={counts:{sites:sites.length,products:products.length,chinaClues:sites.filter(s=>s.china_status.startsWith('中资')).length,watched:0,pendingReview:products.filter(p=>p.analysis_status!=='reviewed').length,activeJobs:0},countries,categories:[...new Set(sites.map(s=>s.category))],ingredients:[...ingredientMap.values()].map(({ids,...i})=>({...i,products:ids.size})).sort((a,b)=>b.products-a.products),approval:{approved:false},config:{database:'只读数据快照',aiConfigured:false,tls:false,readOnly:true},snapshotAt:new Date().toISOString()};
+ await write('overview.json',overview);await write('sites.json',sites);await write('catalog.json',catalog);await write('keywords.json',keywords.map(k=>({...k,enabled:Boolean(k.enabled),aliases:jsonValue(k.aliases),product_count:keywordCounts.get(k.id)||0})));await write('runs.json',runs.map(r=>({...r,brand:siteMap.get(r.site_id).brand,domain:siteMap.get(r.site_id).domain,analysis_count:siteMap.get(r.site_id).analysis_count,job_id:'preview',error_message:null,result:null})));
+ console.log(JSON.stringify({snapshotAt:overview.snapshotAt,...overview.counts,keywords:keywords.length,detailParts:Math.ceil(products.length/250)}));
+}finally{await pool.end();}
