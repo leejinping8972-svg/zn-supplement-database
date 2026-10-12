@@ -1,10 +1,12 @@
 # GitHub 在线只读预览
 
-当前项目已准备好发布，但尚未连接 GitHub 账号，也没有公网预览地址。
+项目已连接 GitHub，并于 2026-10-12 发布只读预览。
 
-## 你需要完成的一步
+- 在线预览：https://leejinping8972-svg.github.io/zn-supplement-database/
+- 项目仓库：https://github.com/leejinping8972-svg/zn-supplement-database
+- 发布记录：https://github.com/leejinping8972-svg/zn-supplement-database/actions
 
-到 https://github.com/signup 注册并验证邮箱。注册完成后，将 GitHub 用户名告诉协助部署的助手；不要发送密码或验证码。推荐仓库名 `zn-supplement-database`。免费 GitHub Pages 通常使用公开仓库，公开前应确认你接受公开这些商品研究资料。
+仓库和预览为公开访问，展示公开商品研究资料快照。真实数据库继续保留在阿里云 RDS，凭据不上传 GitHub。
 
 ## 发布方式
 

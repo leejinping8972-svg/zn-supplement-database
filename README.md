@@ -1,6 +1,6 @@
 # ZN保健品数据库
 
-已提供 GitHub Pages 只读预览构建。发布步骤见 [GITHUB-部署说明.md](./GITHUB-部署说明.md)。预览包含公开商品资料快照，真实数据库凭据和写入功能不会发布到 Pages。
+在线预览：[ZN保健品数据库](https://leejinping8972-svg.github.io/zn-supplement-database/)。已提供 GitHub Pages 只读预览构建。发布步骤见 [GITHUB-部署说明.md](./GITHUB-部署说明.md)。预览包含公开商品资料快照，真实数据库凭据和写入功能不会发布到 Pages。
 
 本地运行的数据库应用。已连接用户指定的阿里云 MySQL，在现有 `eason` 数据库中新增 `si_*` 表，导入原表的 100 个站点。2026-10-11 用户授权全部站点采集，已启动包含 100 个站点的后台任务。商品数量与状态以应用实时查询为准。
 
