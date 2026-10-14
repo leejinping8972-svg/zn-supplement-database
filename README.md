@@ -101,4 +101,14 @@ npm.cmd test
 node tests/smoke.mjs
 ```
 
-核心 41 项测试使用本地虚构页面，不访问或录入真实商品。`tests/smoke.mjs` 和 `tests/site-runs-smoke.mjs` 分别用于初始未开放与仅首站授权的历史验收。当前全部站点开放后使用 `node tests/keywords-smoke.mjs`，检查 2,000 条词表、关联证据、商品筛选、导出、后台范围任务和桌面/手机界面；会创建并清理一条临时关键字，不创建采集任务或更改授权。另可运行 `node tests/discovery-smoke.mjs` 核验新名称、等待接口的 6,000 页任务、密钥不泄漏及桌面/手机页面，不发起真实搜索。需要启动应用、系统 Microsoft Edge 及可用的 Playwright 安装。
+核心 46 项测试使用本地虚构页面，不访问或录入真实商品。`tests/smoke.mjs` 和 `tests/site-runs-smoke.mjs` 分别用于初始未开放与仅首站授权的历史验收。当前全部站点开放后使用 `node tests/keywords-smoke.mjs`，检查 2,000 条词表、关联证据、商品筛选、导出、后台范围任务和桌面/手机界面；会创建并清理一条临时关键字，不创建采集任务或更改授权。另可运行 `node tests/discovery-smoke.mjs` 核验新名称、等待接口的 6,000 页任务、密钥不泄漏及桌面/手机页面，不发起真实搜索。需要启动应用、系统 Microsoft Edge 及可用的 Playwright 安装。
+
+## TikTok 商品资料
+
+商品支持独立站 / TikTok 来源筛选，TikTok 记录店铺名称、店铺链接、国家站点、平台商品 ID 和研究来源链接；支持店铺搜索与导出。历史商品默认归为独立站，TikTok 商品不占用独立站名额。
+
+导入已核对的 EchoTik 页面记录：`node scripts/import-tiktok.mjs 本地JSON路径`。文件包含 `sourcePage`、`expectedCount`、`products`；每件商品必填 `platform_product_id`、`name_original`、`shop_name`、`platform_country`、`country_evidence`、`research_url`，可附 `product_url`（实际 TikTok 链接）、`shop_url`、`description_text`、`price`、`currency`、`images`。JSON 应放在忽略提交的 logs 目录。
+
+导入前核对筛选总数、分页去重和国家证据，按国家与平台商品 ID 去重。每件商品事务写入，失败保留此前已完成记录和日志，可修正后重试；已人工审核的商品不自动覆盖。概念仅关联文本明确出现的功效主题，成分保留原文证据，标题或图片不足以确认完整配方。任务记录显示导入日期、数量、失败原因与逐项日志。
+
+当前 Chrome 扩展连接未建立，尚未采集或导入真实 EchoTik 商品。连接成功后才能核对用户的筛选结果并执行导入。

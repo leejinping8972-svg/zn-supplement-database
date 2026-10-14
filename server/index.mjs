@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import {z} from 'zod';
 import {config,appRoot,publicConfig} from './config.mjs';
 import {pool,approval,transaction,AppError,requireSiteApproved} from './db.mjs';
+import {migrateProductSource} from './product-source.mjs';
 import {migrateSalesCountry} from './sales-country.mjs';
 import {listSiteRuns} from './site-runs.mjs';
 import {dashboard,listSites,listProducts,siteDetail,productDetail} from './repository.mjs';
@@ -76,7 +77,7 @@ app.get('/api/export/:kind',async(req,res)=>{
  else if(req.params.kind==='sites')rows=(await listSites(req.query,true)).rows;
  else{
   rows=(await listProducts(req.query,true)).rows;
-  if(rows.length){const ids=rows.map(r=>r.id),marks=ids.map(()=>'?').join(',');const [ingredients]=await pool.query('SELECT * FROM si_product_ingredients WHERE product_id IN ('+marks+')',ids);const [images]=await pool.query('SELECT * FROM si_product_images WHERE product_id IN ('+marks+') ORDER BY sort_order',ids);rows=rows.map(r=>({...r,keyword_names:r.keywords.filter(k=>k.evidence_scope!=='warning_or_negation').map(k=>k.name_zh).join('；'),ingredient_names:ingredients.filter(i=>i.product_id===r.id).map(i=>i.name_zh).join('；'),ingredient_evidence:ingredients.filter(i=>i.product_id===r.id).map(i=>i.name_zh+'：'+(i.amount_text||'剂量未公开')+' | '+i.evidence_scope+' | '+i.evidence_text).join('\n'),image_urls:images.filter(i=>i.product_id===r.id).map(i=>i.image_url).join('\n')}));}
+  if(rows.length){const ids=rows.map(r=>r.id),marks=ids.map(()=>'?').join(',');const [ingredients]=await pool.query('SELECT * FROM si_product_ingredients WHERE product_id IN ('+marks+')',ids);const [images]=await pool.query('SELECT * FROM si_product_images WHERE product_id IN ('+marks+') ORDER BY sort_order',ids);rows=rows.map(r=>({...r,concept_names:(r.concepts||[]).map(c=>c.name_zh).join('；'),keyword_names:r.keywords.filter(k=>k.evidence_scope!=='warning_or_negation').map(k=>k.name_zh).join('；'),ingredient_names:ingredients.filter(i=>i.product_id===r.id).map(i=>i.name_zh).join('；'),ingredient_evidence:ingredients.filter(i=>i.product_id===r.id).map(i=>i.name_zh+'：'+(i.amount_text||'剂量未公开')+' | '+i.evidence_scope+' | '+i.evidence_text).join('\n'),image_urls:images.filter(i=>i.product_id===r.id).map(i=>i.image_url).join('\n')}));}
  }
  const result=await exportData(rows,req.params.kind==='keywords'?keywordColumns:req.params.kind==='sites'?siteColumns:req.params.kind==='products'?productColumns:runColumns,format);
  res.type(result.mime).setHeader('Content-Disposition',`attachment; filename="zn-supplements-${req.params.kind}-${new Date().toISOString().slice(0,10)}.${format}"`);res.send(result.body);
@@ -109,7 +110,7 @@ app.use((error,req,res,next)=>{
  res.status(status).json({error:validation?'参数格式不正确':status>=500?'数据库或服务暂时不可用，请稍后重试':safeError(error),code:validation?'VALIDATION_ERROR':error.code||'REQUEST_FAILED'});
 });
 const migrationConnection=await pool.getConnection();
-try{await migrateSalesCountry(migrationConnection);}finally{migrationConnection.release();}
+try{await migrateSalesCountry(migrationConnection);await migrateProductSource(migrationConnection);}finally{migrationConnection.release();}
 await recoverDiscoveryJobs();await startWorker();startDiscoveryWorker();
 const server=app.listen(config.port,config.host,()=>console.log(`ZN保健品数据库 http://${config.host}:${config.port} | database=${config.db.database}`));
 server.on('error',e=>{console.error('服务启动失败:',e.code);process.exitCode=1;pool.end();});

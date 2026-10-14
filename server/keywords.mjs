@@ -27,8 +27,10 @@ export function matchKeywords(product,keywords){
 }
 async function vocabulary(){if(!cache){const [rows]=await pool.query('SELECT * FROM si_keywords WHERE enabled=1');cache=compileKeywords(rows);}return cache;}
 export async function syncProductKeywords(c,id,product){
- const matches=matchKeywords(product,await vocabulary());await c.query('DELETE FROM si_product_keywords WHERE product_id=?',[id]);
+ const words=await vocabulary(),matches=matchKeywords(product,words);await c.query('DELETE FROM si_product_keywords WHERE product_id=?',[id]);
  if(matches.length)await c.query('INSERT INTO si_product_keywords (product_id,keyword_id,matched_term,evidence_text,evidence_scope) VALUES ?',[matches.map(m=>[id,m.keyword_id,m.matched_term,m.evidence_text,m.evidence_scope])]);
+ const concepts=matches.filter(m=>m.evidence_scope!=='warning_or_negation'&&words.find(w=>w.id===m.keyword_id)?.keyword_type==='topic').map(m=>({name_zh:words.find(w=>w.id===m.keyword_id).name_zh,evidence_text:m.evidence_text,method:'explicit_topic_mention'}));
+ await c.query("UPDATE si_products SET concepts=? WHERE id=? AND source_platform='tiktok'",[JSON.stringify(concepts),id]);
  return matches.length;
 }
 export async function productKeywords(id,c=pool){const [rows]=await c.query('SELECT k.id,k.name_zh,k.name_en,k.category,k.enabled,pk.matched_term,pk.evidence_text,pk.evidence_scope,pk.matched_at FROM si_product_keywords pk JOIN si_keywords k ON k.id=pk.keyword_id WHERE pk.product_id=? ORDER BY k.keyword_type,k.name_zh',[id]);return rows;}

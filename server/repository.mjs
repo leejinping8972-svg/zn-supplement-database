@@ -10,7 +10,7 @@ export function queryOptions(q={}){
  const page=Math.max(1,Math.min(100000,parseInt(q.page)||1));
  const limit=Math.max(1,Math.min(100,parseInt(q.limit)||25));
  const ids=q.ids?String(q.ids).split(',').filter(positive).slice(0,1000).map(Number):[];
- return {page,limit,ids,search:String(q.search||'').trim().slice(0,200),country:String(q.country||'').slice(0,190),category:String(q.category||'').slice(0,190),china:q.china,watched:q.watched,site:q.site,ingredient:String(q.ingredient||'').slice(0,100),status:q.status,keyword:q.keyword,sort:q.sort};
+ return {page,limit,ids,platform:['independent','tiktok'].includes(q.platform)?q.platform:'',search:String(q.search||'').trim().slice(0,200),country:String(q.country||'').slice(0,190),category:String(q.category||'').slice(0,190),china:q.china,watched:q.watched,site:q.site,ingredient:String(q.ingredient||'').slice(0,100),status:q.status,keyword:q.keyword,sort:q.sort};
 }
 export function siteWhere(q){
  const clauses=[],args=[];
@@ -24,9 +24,10 @@ export function siteWhere(q){
 }
 export function productWhere(q){
  const clauses=[],args=[];
+ if(q.platform){clauses.push('p.source_platform=?');args.push(q.platform);}
  if(q.country==='__unknown__')clauses.push('p.sales_country IS NULL');
  else if(q.country){clauses.push('p.sales_country=?');args.push(q.country);}
- if(q.search){clauses.push('(p.name_original LIKE ? OR p.name_zh LIKE ? OR s.brand LIKE ? OR p.sales_country LIKE ? OR EXISTS (SELECT 1 FROM si_product_ingredients i WHERE i.product_id=p.id AND (i.name_zh LIKE ? OR i.name_original LIKE ?)))');args.push(...Array(6).fill('%'+q.search+'%'));}
+ if(q.search){clauses.push('(p.name_original LIKE ? OR p.name_zh LIKE ? OR s.brand LIKE ? OR p.sales_country LIKE ? OR p.shop_name LIKE ? OR EXISTS (SELECT 1 FROM si_product_ingredients i WHERE i.product_id=p.id AND (i.name_zh LIKE ? OR i.name_original LIKE ?)))');args.push(...Array(7).fill('%'+q.search+'%'));}
  if(positive(q.site)){clauses.push('p.site_id=?');args.push(Number(q.site));}
  if(positive(q.keyword)){clauses.push('EXISTS (SELECT 1 FROM si_product_keywords pk JOIN si_keywords k ON k.id=pk.keyword_id WHERE pk.product_id=p.id AND pk.keyword_id=? AND k.enabled=1 AND pk.evidence_scope<>"warning_or_negation")');args.push(Number(q.keyword));}
  if(q.ingredient){clauses.push('EXISTS (SELECT 1 FROM si_product_ingredients i WHERE i.product_id=p.id AND i.canonical_key=?)');args.push(q.ingredient);}
@@ -42,13 +43,13 @@ export async function listSites(input={},all=false){
  return {rows:rows.map(r=>({...r,watched:Boolean(r.watched)})),total,page:q.page,limit:q.limit};
 }
 export async function listProducts(input={},all=false){
- const q=queryOptions(input),w=productWhere(q),from=' FROM si_products p JOIN si_sites s ON s.id=p.site_id';
+ const q=queryOptions(input),w=productWhere(q),from=' FROM si_products p LEFT JOIN si_sites s ON s.id=p.site_id';
  const [[{total}]]=await pool.query('SELECT COUNT(*) total'+from+w.sql,w.args);
  const sorts={name:'p.name_original ASC',price:'p.price ASC',first:'p.first_seen_at DESC',default:'p.last_seen_at DESC'};
- const [rows]=await pool.query('SELECT p.*,s.brand,s.domain,(SELECT image_url FROM si_product_images WHERE product_id=p.id ORDER BY sort_order LIMIT 1) image_url'+from+w.sql+' ORDER BY '+(sorts[q.sort]||sorts.default)+(all?' LIMIT 10000':' LIMIT ? OFFSET ?'),all?w.args:[...w.args,q.limit,(q.page-1)*q.limit]);
+ const [rows]=await pool.query('SELECT p.*,COALESCE(p.shop_name,s.brand) brand,s.domain,(SELECT image_url FROM si_product_images WHERE product_id=p.id ORDER BY sort_order LIMIT 1) image_url'+from+w.sql+' ORDER BY '+(sorts[q.sort]||sorts.default)+(all?' LIMIT 10000':' LIMIT ? OFFSET ?'),all?w.args:[...w.args,q.limit,(q.page-1)*q.limit]);
  const grouped=new Map();
  if(rows.length){const [links]=await pool.query('SELECT pk.product_id,k.id,k.name_zh,pk.evidence_scope FROM si_product_keywords pk JOIN si_keywords k ON k.id=pk.keyword_id WHERE k.enabled=1 AND pk.product_id IN ('+rows.map(()=>'?').join(',')+')',rows.map(r=>r.id));for(const l of links){if(!grouped.has(l.product_id))grouped.set(l.product_id,[]);grouped.get(l.product_id).push(l);}}
- return {rows:rows.map(r=>({...r,keywords:grouped.get(r.id)||[],analysis:jsonValue(r.analysis),raw_data:undefined})),total,page:q.page,limit:q.limit};
+ return {rows:rows.map(r=>({...r,keywords:grouped.get(r.id)||[],concepts:jsonValue(r.concepts)||[],analysis:jsonValue(r.analysis),raw_data:undefined})),total,page:q.page,limit:q.limit};
 }
 export async function siteDetail(id){
  const [[site]]=await pool.query('SELECT si_sites.*,'+runStatsSql+' FROM si_sites WHERE id=?',[id]);if(!site)throw new AppError(404,'站点不存在');
@@ -56,19 +57,20 @@ export async function siteDetail(id){
  return {...site,watched:Boolean(site.watched),...counts};
 }
 export async function productDetail(id){
- const [[product]]=await pool.query('SELECT p.*,s.brand,s.domain FROM si_products p JOIN si_sites s ON s.id=p.site_id WHERE p.id=?',[id]);
+ const [[product]]=await pool.query('SELECT p.*,COALESCE(p.shop_name,s.brand) brand,s.domain FROM si_products p LEFT JOIN si_sites s ON s.id=p.site_id WHERE p.id=?',[id]);
  if(!product)throw new AppError(404,'商品不存在');
  const [images]=await pool.query('SELECT * FROM si_product_images WHERE product_id=? ORDER BY sort_order',[id]);
  const [ingredients]=await pool.query('SELECT * FROM si_product_ingredients WHERE product_id=?',[id]);
  const [snapshots]=await pool.query('SELECT id,content_hash,captured_at FROM si_product_snapshots WHERE product_id=? ORDER BY captured_at DESC',[id]);
- return {...product,analysis:jsonValue(product.analysis),raw_data:jsonValue(product.raw_data),images,ingredients,snapshots,keywords:await productKeywords(id)};
+ return {...product,concepts:jsonValue(product.concepts)||[],analysis:jsonValue(product.analysis),raw_data:jsonValue(product.raw_data),images,ingredients,snapshots,keywords:await productKeywords(id)};
 }
 export async function dashboard(){
  const [[counts]]=await pool.query("SELECT (SELECT COUNT(*) FROM si_sites) sites,(SELECT COUNT(*) FROM si_products) products,(SELECT COUNT(*) FROM si_sites WHERE china_status LIKE '中资%') chinaClues,(SELECT COUNT(*) FROM si_sites WHERE watched=1) watched,(SELECT COUNT(*) FROM si_products WHERE analysis_status<>'reviewed') pendingReview,(SELECT COUNT(*) FROM si_jobs WHERE status IN ('queued','running')) activeJobs");
  const [countries]=await pool.query('SELECT country,COUNT(*) count FROM si_sites GROUP BY country ORDER BY count DESC');
  const [categories]=await pool.query('SELECT DISTINCT category FROM si_sites ORDER BY category');
  const [ingredients]=await pool.query('SELECT canonical_key,name_zh,COUNT(DISTINCT product_id) products,SUM(amount_text IS NOT NULL) with_dose,SUM(evidence_scope="label_text") label_evidence FROM si_product_ingredients GROUP BY canonical_key,name_zh ORDER BY products DESC');
- return {counts,countries,categories:categories.map(r=>r.category),ingredients};
+ const [productCountries]=await pool.query('SELECT DISTINCT sales_country country FROM si_products WHERE sales_country IS NOT NULL ORDER BY sales_country');
+ return {counts,countries,productCountries,categories:categories.map(r=>r.category),ingredients};
 }
 export async function saveProduct(site,product,analysis,jobId){
  return transaction(async c=>{

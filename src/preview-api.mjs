@@ -5,12 +5,13 @@ export function filterRows(kind,rows,q){
  const search=(q.search||'').trim().toLowerCase(),ids=q.ids?.split(',').map(Number);
  let result=rows.filter(r=>{
   if(ids?.length&&!ids.includes(r.id))return false;
-  const terms=kind==='sites'?[r.brand,r.domain,r.main_products,r.intro]:kind==='products'?[r.name_original,r.name_zh,r.brand,r.ingredient_names,r.sales_country]:kind==='keywords'?[r.name_zh,r.name_en,...r.aliases]:[r.brand,r.domain];
+  const terms=kind==='sites'?[r.brand,r.domain,r.main_products,r.intro]:kind==='products'?[r.name_original,r.name_zh,r.brand,r.ingredient_names,r.sales_country,r.shop_name]:kind==='keywords'?[r.name_zh,r.name_en,...r.aliases]:[r.brand,r.domain];
   if(search&&!terms.join(' ').toLowerCase().includes(search))return false;
   if(q.country&&(kind==='products'?(q.country==='__unknown__'?Boolean(r.sales_country):r.sales_country!==q.country):r.country!==q.country))return false;
   if(q.category&&r.category!==q.category)return false;
   if(q.china==='clue'&&!r.china_status.startsWith('中资')||q.china==='unknown'&&r.china_status.startsWith('中资'))return false;
   if(q.watched==='true'&&!r.watched)return false;
+  if(q.platform&&r.source_platform!==q.platform)return false;
   if(q.site&&r.site_id!==Number(q.site))return false;
   if(q.status&&(kind==='products'?r.analysis_status:r.status)!==q.status)return false;
   if(q.ingredient&&!r.ingredient_keys?.includes(q.ingredient))return false;
@@ -37,7 +38,7 @@ export async function previewApi(value,options={}){
 export async function previewExport(kind,filters,format){
  let rows=filterRows(kind,await data({sites:'sites',products:'catalog',keywords:'keywords','analysis-runs':'runs'}[kind]),filters);
  if(kind==='keywords')rows=rows.map(k=>({...k,aliases:k.aliases.join('；')}));
- if(kind==='products')rows=rows.map(p=>({...p,keyword_names:p.keywords.filter(k=>k.evidence_scope!=='warning_or_negation').map(k=>k.name_zh).join('；'),image_urls:p.image_url}));
+ if(kind==='products')rows=rows.map(p=>({...p,concept_names:(p.concepts||[]).map(c=>c.name_zh).join('；'),keyword_names:p.keywords.filter(k=>k.evidence_scope!=='warning_or_negation').map(k=>k.name_zh).join('；'),image_urls:p.image_url}));
  const {exportData,siteColumns,productColumns,keywordColumns,runColumns}=await import('../server/export.mjs');
  const columns=kind==='products'?productColumns.filter(([key])=>!['description_text','ingredient_evidence'].includes(key)):kind==='sites'?siteColumns:kind==='keywords'?keywordColumns:runColumns;
  const result=await exportData(rows,columns,format);return new Blob([result.body],{type:result.mime});
