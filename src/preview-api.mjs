@@ -1,5 +1,6 @@
 const cache=new Map();
-async function data(name){if(!cache.has(name))cache.set(name,fetch(import.meta.env.BASE_URL+'data/'+name+'.json').then(r=>{if(!r.ok)throw new Error('预览数据读取失败');return r.json();}).catch(e=>{cache.delete(name);throw e;}));return cache.get(name);}
+export const previewDataUrl=(base,name,version)=>base+'data/'+name+'.json?v='+encodeURIComponent(version);
+async function data(name){if(!cache.has(name))cache.set(name,fetch(previewDataUrl(import.meta.env.BASE_URL,name,import.meta.env.VITE_SNAPSHOT_VERSION)).then(r=>{if(!r.ok)throw new Error('预览数据读取失败');return r.json();}).catch(e=>{cache.delete(name);throw e;}));return cache.get(name);}
 export function filterRows(kind,rows,q){
  const search=(q.search||'').trim().toLowerCase(),ids=q.ids?.split(',').map(Number);
  let result=rows.filter(r=>{

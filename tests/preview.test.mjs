@@ -1,6 +1,14 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {filterRows,previewApi} from '../src/preview-api.mjs';
+import {filterRows,previewApi,previewDataUrl} from '../src/preview-api.mjs';
+
+test('Published snapshots use distinct cache URLs after data updates, including product detail shards',()=>{
+ const old=previewDataUrl('/zn-supplement-database/','catalog','2026-10-12T08:00:00Z');
+ const fresh=previewDataUrl('/zn-supplement-database/','catalog','2026-10-14T08:51:00Z');
+ assert.notEqual(old,fresh);
+ const detail=new URL(previewDataUrl('/zn-supplement-database/','products/43','2026-10-14T08:51:00Z'),'https://example.com');
+ assert.equal(detail.pathname,'/zn-supplement-database/data/products/43.json');assert.equal(detail.searchParams.get('v'),'2026-10-14T08:51:00Z');
+});
 test('Read-only preview refuses every mutation before loading data',async()=>{
  for(const method of ['POST','PUT','PATCH','DELETE'])await assert.rejects(previewApi('/keywords',{method}),/只读预览/);
 });

@@ -101,4 +101,4 @@ npm.cmd test
 node tests/smoke.mjs
 ```
 
-核心 40 项测试使用本地虚构页面，不访问或录入真实商品。`tests/smoke.mjs` 和 `tests/site-runs-smoke.mjs` 分别用于初始未开放与仅首站授权的历史验收。当前全部站点开放后使用 `node tests/keywords-smoke.mjs`，检查 2,000 条词表、关联证据、商品筛选、导出、后台范围任务和桌面/手机界面；会创建并清理一条临时关键字，不创建采集任务或更改授权。另可运行 `node tests/discovery-smoke.mjs` 核验新名称、等待接口的 6,000 页任务、密钥不泄漏及桌面/手机页面，不发起真实搜索。需要启动应用、系统 Microsoft Edge 及可用的 Playwright 安装。
+核心 41 项测试使用本地虚构页面，不访问或录入真实商品。`tests/smoke.mjs` 和 `tests/site-runs-smoke.mjs` 分别用于初始未开放与仅首站授权的历史验收。当前全部站点开放后使用 `node tests/keywords-smoke.mjs`，检查 2,000 条词表、关联证据、商品筛选、导出、后台范围任务和桌面/手机界面；会创建并清理一条临时关键字，不创建采集任务或更改授权。另可运行 `node tests/discovery-smoke.mjs` 核验新名称、等待接口的 6,000 页任务、密钥不泄漏及桌面/手机页面，不发起真实搜索。需要启动应用、系统 Microsoft Edge 及可用的 Playwright 安装。
