@@ -1,0 +1,91 @@
+{
+  "batch": "vietnam-2026-10-14",
+  "scope": "人工筛选的商品样本，非全站全量抓取；非广告投放或销量排名。",
+  "startedAt": "2026-10-14T08:25:27.510Z",
+  "finishedAt": "2026-10-14T08:31:12.756Z",
+  "aliasesAdded": 58,
+  "totalProducts": 59,
+  "sites": [
+    {
+      "brand": "An Store",
+      "domain": "hangmychinhhang.us",
+      "products": 20,
+      "withImages": 20,
+      "withIngredients": 17,
+      "withKeywords": 20,
+      "keywordLinks": 184,
+      "analysisCount": 1,
+      "analyzedAt": "2026-10-14T08:25:31.000Z",
+      "finishedAt": "2026-10-14T08:27:59.000Z",
+      "translationStatus": [
+        "partial"
+      ],
+      "chinaOperatorStatus": "未确认"
+    },
+    {
+      "brand": "Kênh Xách Tay Đức",
+      "domain": "kenhxachtayduc.com",
+      "products": 16,
+      "withImages": 16,
+      "withIngredients": 16,
+      "withKeywords": 16,
+      "keywordLinks": 93,
+      "analysisCount": 1,
+      "analyzedAt": "2026-10-14T08:27:59.000Z",
+      "finishedAt": "2026-10-14T08:29:04.000Z",
+      "translationStatus": [
+        "partial"
+      ],
+      "chinaOperatorStatus": "未确认"
+    },
+    {
+      "brand": "KHOE24",
+      "domain": "khoe24.vn",
+      "products": 10,
+      "withImages": 10,
+      "withIngredients": 9,
+      "withKeywords": 8,
+      "keywordLinks": 20,
+      "analysisCount": 1,
+      "analyzedAt": "2026-10-14T08:29:04.000Z",
+      "finishedAt": "2026-10-14T08:30:06.000Z",
+      "translationStatus": [
+        "partial",
+        "pending"
+      ],
+      "chinaOperatorStatus": "未确认"
+    },
+    {
+      "brand": "Hangxachtayuytin",
+      "domain": "hangxachtayuytin.com",
+      "products": 3,
+      "withImages": 3,
+      "withIngredients": 2,
+      "withKeywords": 3,
+      "keywordLinks": 9,
+      "analysisCount": 1,
+      "analyzedAt": "2026-10-14T08:30:06.000Z",
+      "finishedAt": "2026-10-14T08:30:25.000Z",
+      "translationStatus": [
+        "partial"
+      ],
+      "chinaOperatorStatus": "未确认"
+    },
+    {
+      "brand": "Nhà Thuốc Khang Việt",
+      "domain": "nhathuockhangviet.com",
+      "products": 10,
+      "withImages": 10,
+      "withIngredients": 7,
+      "withKeywords": 10,
+      "keywordLinks": 70,
+      "analysisCount": 1,
+      "analyzedAt": "2026-10-14T08:30:25.000Z",
+      "finishedAt": "2026-10-14T08:31:12.000Z",
+      "translationStatus": [
+        "partial"
+      ],
+      "chinaOperatorStatus": "未确认"
+    }
+  ]
+}

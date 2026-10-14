@@ -1,6 +1,7 @@
 import {z} from 'zod';
 import {config} from './config.mjs';
 import {nutritionRows} from './parser.mjs';
+import {vietnameseIngredients,translateVietnameseTitle} from './vietnamese.mjs';
 
 export const ingredientCatalog=[
  ['magnesium','镁',['magnesium','magnésium','magnesiumbisglycinat','镁']],
@@ -58,14 +59,14 @@ export const ingredientCatalog=[
  ['nac','N-乙酰半胱氨酸',['n-acetyl cysteine','n-acetylcysteine','nac']],
  ['benfotiamine','苯磷硫胺',['benfotiamine']],
  ['guar_fiber','瓜尔豆膳食纤维',['sunfiber','guar fiber']],
-].map(([key,name,aliases])=>({key,name,aliases}));
+].map(([key,name,aliases])=>({key,name,aliases:[...aliases,...(vietnameseIngredients[key]||[])]}));
 const escaped=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 const aliasPattern=a=>new RegExp((/^[\x00-\x7F]+$/.test(a)?'(?<![a-z])':'')+escaped(a)+(/^[\x00-\x7F]+$/.test(a)?'(?![a-z])':''),'i');
 export function ruleAnalysis(product){
  const text=product.description_text||'';
- const labelIndex=text.search(/supplement facts|nutrition facts|(?<!other )ingredients\s*[:：]|composition\s*[:：]|ingr[ée]dients\s*[:：]|zutaten\s*[:：]|成分\s*[:：]/i);
+ const labelIndex=text.search(/supplement facts|nutrition facts|(?<!other )ingredients\s*[:：]|composition\s*[:：]|ingr[ée]dients\s*[:：]|zutaten\s*[:：]|thành phần\s*[:：]|成分\s*[:：]/i);
  let scope=labelIndex>=0?text.slice(labelIndex,labelIndex+12000):text;
- const end=scope.search(/other ingredients\s*[:：]|suggested (?:adult )?use|warning\s*[:：]|storage\s*[:：]/i);
+ const end=scope.search(/other ingredients\s*[:：]|suggested (?:adult )?use|warning\s*[:：]|storage\s*[:：]|hướng dẫn sử dụng|cách dùng|lưu ý|bảo quản/i);
  if(end>=0)scope=scope.slice(0,end);
  const raw=product.raw_data||{};
  const rows=nutritionRows(raw.body_html||raw.description_html||'');
@@ -93,7 +94,8 @@ export function ruleAnalysis(product){
   const pat=new RegExp(aliasPattern(alias).source,'ig');if(pat.test(translated)){found=true;translated=translated.replace(pat,entry.name);}
  }
  for(const [pat,replacement] of [[/\bmulti[ -]?vitamins?\b/ig,'复合维生素'],[/\bveggie\s*caps\b/ig,'植物胶囊'],[/\bcaps\b/ig,'胶囊'],[/\bchewable\b/ig,'咀嚼型'],[/\bprebiotics?\b/ig,'益生元'],[/\bunflavored\b/ig,'原味']])if(pat.test(translated)){found=true;translated=translated.replace(pat,replacement);}
- const forms=[[/softgels?/i,'软胶囊'],[/capsules?|\bcaps\b|gélules/i,'胶囊'],[/gummies|gummy/i,'软糖'],[/tablets?|comprimés/i,'片剂'],[/powder|poudre/i,'粉剂'],[/liquid|drops/i,'液体／滴剂']];
+ const viTitle=translateVietnameseTitle(translated);if(viTitle!==translated){translated=viTitle;found=true;}
+ const forms=[[/softgels?|viên nang mềm/i,'软胶囊'],[/capsules?|\bcaps\b|gélules|viên nang/i,'胶囊'],[/gummies|gummy/i,'软糖'],[/viên sủi/i,'泡腾片'],[/tablets?|comprimés|viên nén/i,'片剂'],[/powder|poudre|bột/i,'粉剂'],[/liquid|drops/i,'液体／滴剂']];
  const dosage_form=forms.find(([pat])=>pat.test(title+' '+text.slice(0,500)))?.[1]||null;
  const serving_size=text.match(/serving size\s*([^]{1,190}?)(?:servings per container|amount per serving)/i)?.[1]?.trim()||null;
  return {name_zh:found?translated.slice(0,512):null,translation_status:found?'partial':'pending',dosage_form,serving_size,summary:ingredients.length?`从公开文本识别到${ingredients.length}类成分，需核对营养标签。`:'未识别到词典覆盖的成分，需补充标签或人工核验。',ingredients,claims:[],analysis_status:'needs_review',method:'rule',warnings:[...(labelIndex<0&&!rows.length?['成分为商品描述提及，未确认为完整营养标签。']:[]),...(ingredients.some(i=>!i.amount_text)?['部分成分未提供可靠剂量。']:[]),'名称仅作词典辅助翻译，需人工审核。'],analyzed_at:new Date().toISOString()};

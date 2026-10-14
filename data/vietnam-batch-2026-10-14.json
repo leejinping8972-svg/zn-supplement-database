@@ -1,0 +1,322 @@
+{
+  "batch": "vietnam-2026-10-14",
+  "scope": "人工筛选的商品样本，非全站全量抓取；非广告投放或销量排名。",
+  "sites": [
+    {
+      "domain": "hangmychinhhang.us",
+      "brand": "An Store",
+      "url": "https://hangmychinhhang.us/",
+      "country": "越南",
+      "category": "越南市场 / 多品牌营养品商城",
+      "intro": "越南营养品独立零售商城，主要销售美国进口维生素、矿物质及鱼油。 首批为商品抽样分析，非全站目录。",
+      "main_products": "维生素B、镁、鱼油、益生菌",
+      "public_address": "53 Nguyễn Sơn, Phường Phú Thạnh, Quận Tân Phú, TPHCM",
+      "address_type": "官网联系地址",
+      "country_note": "按官网越南经营联系地址归类；进口品牌来源国不等于店铺所在国。",
+      "company_source": "https://hangmychinhhang.us/",
+      "source_date": "2026-10-14",
+      "products": [
+        {
+          "url": "https://hangmychinhhang.us/sports-research-advanced-b-complex/",
+          "observedTitle": "Vitamin Nhóm B Tổng Hợp Sports Research Advanced B-Complex Của Mỹ, 100% Chính HãngĐược xếp hạng 5 5 sao 990.000 ₫"
+        },
+        {
+          "url": "https://hangmychinhhang.us/sports-research-magnesium-l-threonate/",
+          "observedTitle": "Magie Hữu Cơ Sports Research Magnesium L-Threonate Của Mỹ, 100% Chính Hãng, Chuẩn Nội Địa Mỹ, Giá TốtĐược xếp hạng 5 5 sao 1.190.000 ₫"
+        },
+        {
+          "url": "https://hangmychinhhang.us/ngan-ngua-tai-bien/",
+          "observedTitle": "Nattokinase 2000 FUs – Viên Uống Ngăn Ngừa Tai Biến & Nhồi Máu Cơ Tim Của MỹĐược xếp hạng 5 5 sao 1.150.000 ₫"
+        },
+        {
+          "url": "https://hangmychinhhang.us/magie-huu-co-nature-made-magnesium-citrate/",
+          "observedTitle": "Magie Hữu Cơ Nature Made Magnesium Citrate 250mg Của Mỹ, 100% Chính HãngĐược xếp hạng 5 5 sao 890.000 ₫"
+        },
+        {
+          "url": "https://hangmychinhhang.us/dau-nhuyen-the-sports-research/",
+          "observedTitle": "Dầu Nhuyễn Thể Sports Research Omega-3 Krill Oil 90 Viên Của Mỹ, 100% Chính Hãng, Chuẩn Nội Địa Mỹ, Giá TốtĐược xếp hạng 5 5 sao 1.090.000 ₫"
+        },
+        {
+          "url": "https://hangmychinhhang.us/dau-ca-sports-research/",
+          "observedTitle": "Dầu Cá Sports Research Omega-3 Fish Oil 1250mg Của Mỹ, 150 ViênĐược xếp hạng 5 5 sao 1.190.000 ₫"
+        },
+        {
+          "url": "https://hangmychinhhang.us/dau-ca-hoi-wild-alaskan-salmon-oil-omega-3/",
+          "observedTitle": "Dầu Cá Hồi Wild Alaskan Salmon Oil Omega-3 1000mg Của Mỹ, 100% Chính Hãng, Chuẩn Nội Địa Mỹ, Giá TốtĐược xếp hạng 5 5 sao 750.000 ₫"
+        },
+        {
+          "url": "https://hangmychinhhang.us/vitamin-tong-hop-sports-research/",
+          "observedTitle": "Vitamin Tổng Hợp Sports Research Advanced Multivitamin Của MỹĐược xếp hạng 5 5 sao 1.190.000 ₫"
+        },
+        {
+          "url": "https://hangmychinhhang.us/sports-research-magnesium-glycinate/",
+          "observedTitle": "Magie Hữu Cơ Sports Research Magnesium Glycinate 120 Viên Của MỹĐược xếp hạng 5 5 sao 990.000 ₫"
+        },
+        {
+          "url": "https://hangmychinhhang.us/magnesium-lysinate-glycinate/",
+          "observedTitle": "Magie Hữu Cơ Doctor’s Best Magnesium Lysinate Glycinate 200mg Của Mỹ, 100% Chính Hãng, Giá TốtĐược xếp hạng 5 5 sao 950.000 ₫"
+        },
+        {
+          "url": "https://hangmychinhhang.us/vitamin-b12-2500-mcg/",
+          "observedTitle": "Vitamin B12 2500 mcg 300 Viên Của Mỹ, 100% Chính Hãng, Giá TốtĐược xếp hạng 5 5 sao 795.000 ₫"
+        },
+        {
+          "url": "https://hangmychinhhang.us/vitamin-b12-1000-mcg/",
+          "observedTitle": "Viên Uống Nature Made Vitamin B12 1000 mcg 400 Viên Của MỹĐược xếp hạng 5 5 sao 795.000 ₫"
+        },
+        {
+          "url": "https://hangmychinhhang.us/megafood-womens-whole-body-multi/",
+          "observedTitle": "Vitamin Tổng Hợp Hữu Cơ MegaFood Women’s Whole Body Multi Của Mỹ, 100% Chính HãngĐược xếp hạng 5 5 sao 790.000 ₫"
+        },
+        {
+          "url": "https://hangmychinhhang.us/magie-huu-co-magnesium-glycinate/",
+          "observedTitle": "Magie Hữu Cơ Magnesium Glycinate 240mg 180 Viên Của Mỹ, 100% Chính Hãng, Giá TốtĐược xếp hạng 5 5 sao 750.000 ₫"
+        },
+        {
+          "url": "https://hangmychinhhang.us/tang-cuong-sinh-ly-nam-horny-goat-weed-180-vien/",
+          "observedTitle": "Viên Uống Tăng Cường Sinh Lý Nam Horny Goat Weed 180 Viên Của Mỹ, 100% Chính Hãng, Giá TốtĐược xếp hạng 5 5 sao 1.195.000 ₫"
+        },
+        {
+          "url": "https://hangmychinhhang.us/tinh-chat-nghe-qunol-turmeric-1500mg/",
+          "observedTitle": "Viên Uống Tinh Chất Nghệ Qunol Turmeric 1500mg Của Mỹ, 100% Chính Hãng, Giá TốtĐược xếp hạng 5 5 sao 1.250.000 ₫"
+        },
+        {
+          "url": "https://hangmychinhhang.us/men-vi-sinh-phu-nu/",
+          "observedTitle": "Men Vi Sinh Phụ Nữ Trunature Women’s Daily Probiotic 90 Viên Của Mỹ, 100% Chính Hãng, Chuẩn Nội Địa Mỹ, Giá TốtĐược xếp hạng 5 5 sao 780.000 ₫"
+        },
+        {
+          "url": "https://hangmychinhhang.us/men-vi-sinh-trunature/",
+          "observedTitle": "Men Vi Sinh Trunature Advanced Digestive Probiotic Của Mỹ, 100% Chính Hãng, Chuẩn Nội Địa Mỹ, Giá TốtĐược xếp hạng 5 5 sao 690.000 ₫"
+        },
+        {
+          "url": "https://hangmychinhhang.us/vitamin-d3-k2-sports-research/",
+          "observedTitle": "Vitamin D3 + K2 Sports Research 160 Viên Của Mỹ, 100% Chính Hãng, Giá TốtĐược xếp hạng 5 5 sao 950.000 ₫"
+        },
+        {
+          "url": "https://hangmychinhhang.us/vitamin-tong-hop-one-a-day-womens-50-cua-my/",
+          "observedTitle": "Vitamin Tổng Hợp One A Day Women’s 50+ Của Mỹ – 100% Chính Hãng, Chuẩn Nội Địa Mỹ, Giá TốtĐược xếp hạng 5 5 sao 795.000 ₫"
+        }
+      ]
+    },
+    {
+      "domain": "kenhxachtayduc.com",
+      "brand": "Kênh Xách Tay Đức",
+      "url": "https://kenhxachtayduc.com/",
+      "country": "越南",
+      "category": "越南市场 / 多品牌营养品商城",
+      "intro": "面向越南市场的德国商品独立商城，设有保健品专区，并销售 Doppelherz、Mivolis 等品牌。 首批为商品抽样分析，非全站目录。",
+      "main_products": "维生素、镁钙、更年期营养、胶原蛋白",
+      "public_address": null,
+      "address_type": "地址待核验",
+      "country_note": "按越南语销售市场归类；经营主体注册国家及地址待核验，进口品牌来源国不等于店铺所在国。",
+      "company_source": "https://kenhxachtayduc.com/",
+      "source_date": "2026-10-14",
+      "products": [
+        {
+          "url": "https://kenhxachtayduc.com/products/doppelherz-magnesium-calcium-d3/",
+          "observedTitle": "Viên uống Doppelherz Magnesium + Calcium + D3, 40 viên"
+        },
+        {
+          "url": "https://kenhxachtayduc.com/products/doppelherz-aktiv-meno-soja-isoflavone/",
+          "observedTitle": "Viên uống Doppelherz Aktiv-Meno cân bằng nội tiết tố nữ 30 viên"
+        },
+        {
+          "url": "https://kenhxachtayduc.com/products/thuoc-bo-khop-tetesept-glucosamin-1600/",
+          "observedTitle": "Viên uống bổ xương khớp Tetesept Glucosamin 1650 + Chondroitin + Hyaluron, 40 viên"
+        },
+        {
+          "url": "https://kenhxachtayduc.com/products/ginkgo-doppelherz-aktiv/",
+          "observedTitle": "Viên uống bổ não Doppelherz Aktiv Ginkgo + B-Vitamine + Cholin, 40 viên"
+        },
+        {
+          "url": "https://kenhxachtayduc.com/products/zirkulin-leber-vital/",
+          "observedTitle": "Viên uống bổ gan Zirkulin Leber Vital hỗ trợ gan và tiêu hóa, 30 viên"
+        },
+        {
+          "url": "https://kenhxachtayduc.com/products/doppelherz-omega-3-seefischol-1000/",
+          "observedTitle": "Viên dầu cá Doppelherz Omega-3 Seefischöl 1000, 80 viên"
+        },
+        {
+          "url": "https://kenhxachtayduc.com/products/collagen-thuy-phan-doppelherz-kollagen-11000-plus/",
+          "observedTitle": "Collagen thuỷ phân Doppelherz Kollagen 11.000 Plus, 30 x 25 ml"
+        },
+        {
+          "url": "https://kenhxachtayduc.com/products/vien-sui-vitamin-c-mivolis/",
+          "observedTitle": "Viên sủi Mivolis Vitamin C, 20 viên"
+        },
+        {
+          "url": "https://kenhxachtayduc.com/products/vitamin-tong-hop-mivolis-a-z-depot-ab-50-100-vien/",
+          "observedTitle": "Vitamin tổng hợp Mivolis A-Z Komplett Depot ab 50 cho người từ 50 tuổi, 100 viên"
+        },
+        {
+          "url": "https://kenhxachtayduc.com/products/vien-sui-vitamin-tong-hop-mivolis-multivitamin/",
+          "observedTitle": "Viên sủi Mivolis Multivitamin vitamin tổng hợp, 20 viên"
+        },
+        {
+          "url": "https://kenhxachtayduc.com/products/keo-gau-cua-duc-mivolis-multivitamin-barchen/",
+          "observedTitle": "Kẹo gấu Mivolis Multivitamin Bärchen vitamin tổng hợp cho trẻ em, 60 viên"
+        },
+        {
+          "url": "https://kenhxachtayduc.com/products/sanostol-so-6-plus-eisen/",
+          "observedTitle": "Siro vitamin tổng hợp Sanostol số 6 + sắt cho trẻ từ 6 tuổi, 460 ml"
+        },
+        {
+          "url": "https://kenhxachtayduc.com/products/vien-uong-doppelherz-magnesium-400-b1-b6-b12-axit-folic/",
+          "observedTitle": "Viên uống Doppelherz Magnesium 400 + B1 + B6 + B12 + Axit folic, 30 viên"
+        },
+        {
+          "url": "https://kenhxachtayduc.com/products/doppelherz-a-z-depot/",
+          "observedTitle": "Vitamin tổng hợp Doppelherz A-Z Depot, 40 viên"
+        },
+        {
+          "url": "https://kenhxachtayduc.com/products/sanostol-so-3/",
+          "observedTitle": "Siro vitamin tổng hợp Sanostol số 3 cho trẻ từ 3 tuổi, 460 ml"
+        },
+        {
+          "url": "https://kenhxachtayduc.com/products/vien-uong-doppelherz-d3-k2-calcium-magnesium/",
+          "observedTitle": "Viên uống Doppelherz D3 + K2 + Calcium + Magnesium, 30 viên"
+        }
+      ]
+    },
+    {
+      "domain": "khoe24.vn",
+      "brand": "KHOE24",
+      "url": "https://khoe24.vn/",
+      "country": "越南",
+      "category": "越南市场 / 多品牌营养品商城",
+      "intro": "越南多品牌营养补充剂独立商城，页面展示越南盾价格、下单入口和河内联系地址。 首批为商品抽样分析，非全站目录。",
+      "main_products": "维生素、镁、关节营养、益生菌",
+      "public_address": "477 Hoàng Quốc Việt, Hà Nội",
+      "address_type": "官网联系地址",
+      "country_note": "按官网越南经营联系地址归类；进口品牌来源国不等于店铺所在国。",
+      "company_source": "https://khoe24.vn/",
+      "source_date": "2026-10-14",
+      "products": [
+        {
+          "url": "https://www.khoe24.vn/thuoc-bo-life-extension-magnesium-citrate-100-mg-100-vegetarian-capsules-47676",
+          "observedTitle": "Life Extension Magnesium (Citrate) 100 mg 100 Vegetarian Capsules"
+        },
+        {
+          "url": "https://www.khoe24.vn/thuoc-bo-mason-natural-vitamin-b-1-250-mg-100-tablets-50203",
+          "observedTitle": "Mason Natural Vitamin B-1 250 mg 100 Tablets"
+        },
+        {
+          "url": "https://www.khoe24.vn/thuoc-bo-doctor-s-best-glucosamine-chondroitin-msm-hyaluronic-acid-150-veggie-caps-40634",
+          "observedTitle": "Doctor’s Best Glucosamine Chondroitin MSM + Hyaluronic Acid 150 Veggie Caps"
+        },
+        {
+          "url": "https://www.khoe24.vn/thuoc-bo-nordic-naturals-omega-focus-junior-ages-6-18-120-mini-soft-gels-79529",
+          "observedTitle": "Nordic Naturals Omega Focus Junior Ages 6-18 120 Mini Soft Gels"
+        },
+        {
+          "url": "https://www.khoe24.vn/thuoc-bo-now-foods-magnesium-citrate-200-mg-100-tablets-116584",
+          "observedTitle": "NOW Foods Magnesium Citrate 200 mg 100 Tablets"
+        },
+        {
+          "url": "https://www.khoe24.vn/thuoc-bo-mason-natural-vitamin-d3-10-mcg-400-iu-100-softgels-81378",
+          "observedTitle": "Mason Natural Vitamin D3 10 mcg (400 IU) 100 Softgels"
+        },
+        {
+          "url": "https://www.khoe24.vn/thuoc-bo-21st-century-glucosamine-chondroitin-original-strength-250-mg-200-mg-120-easy-to-swallow-capsules-43771",
+          "observedTitle": "21st Century Glucosamine / Chondroitin Original Strength 250 mg / 200 mg 120 Easy to Swallow Capsules"
+        },
+        {
+          "url": "https://www.khoe24.vn/thuoc-bo-maryruth-organics-men-s-multivitamin-liposomal-vanilla-peach-15-22-fl-oz-450-ml-115317",
+          "observedTitle": "MaryRuth Organics Men’s Multivitamin Liposomal Vanilla Peach 15.22 fl oz (450 ml)"
+        },
+        {
+          "url": "https://www.khoe24.vn/thuoc-bo-kal-magnesium-malate-400-90-tablets-73769",
+          "observedTitle": "KAL Magnesium Malate 400 90 Tablets"
+        },
+        {
+          "url": "https://www.khoe24.vn/thuoc-bo-garden-of-life-dr-formulated-probiotics-once-daily-prenatal-30-vegetarian-capsules-71134",
+          "observedTitle": "Garden of Life Dr. Formulated Probiotics Once Daily Prenatal 30 Vegetarian Capsules"
+        }
+      ]
+    },
+    {
+      "domain": "hangxachtayuytin.com",
+      "brand": "Hangxachtayuytin",
+      "url": "https://hangxachtayuytin.com/",
+      "country": "越南",
+      "category": "越南市场 / 多品牌营养品商城",
+      "intro": "越南进口商品独立商城，保健品与药品混合经营。本批仅选取营养补充剂，排除助眠药等药品。 首批为商品抽样分析，非全站目录。",
+      "main_products": "维生素D3、磷虾油、草本营养",
+      "public_address": "Thành phố Hồ Chí Minh",
+      "address_type": "官网仅披露城市",
+      "country_note": "按官网越南经营联系地址归类；进口品牌来源国不等于店铺所在国。",
+      "company_source": "https://hangxachtayuytin.com/",
+      "source_date": "2026-10-14",
+      "products": [
+        {
+          "url": "https://hangxachtayuytin.com/100-vien-thao-duoc-ho-tro-than-va-bang-quang-kidney-bladder-nature-s-way-hang-chuan-my",
+          "observedTitle": "100 viên thảo dược hỗ trợ thận và bàng quang Kidney Bladder Nature's Way hàng chuẩn Mỹ"
+        },
+        {
+          "url": "https://hangxachtayuytin.com/90-vien-dau-nhuyen-the-omega-3-double-strength-sports-research-omega-3-krill-oil-1000mg-hang-chuan-my",
+          "observedTitle": "90 viên dầu nhuyễn thể Omega-3 Double Strength Sports Research Omega 3 Krill Oil 1000mg hàng chuẩn Mỹ"
+        },
+        {
+          "url": "https://hangxachtayuytin.com/600-vien-uong-bo-sung-vitamin-d3-kirkland-hang-chuan-my",
+          "observedTitle": "600 viên uống bổ sung Vitamin D3 Kirkland 2000IU hàng chuẩn Mỹ"
+        }
+      ]
+    },
+    {
+      "domain": "nhathuockhangviet.com",
+      "brand": "Nhà Thuốc Khang Việt",
+      "url": "https://nhathuockhangviet.com/",
+      "country": "越南",
+      "category": "越南市场 / 多品牌营养品商城",
+      "intro": "越南药房运营的独立零售商城。本批分析口服营养及美容补充剂，未将整站商品视为保健品。 首批为商品抽样分析，非全站目录。",
+      "main_products": "谷胱甘肽、维生素C、胶原蛋白、体重管理",
+      "public_address": "342 Phạm Văn Đồng, Phường 1, Q. Gò Vấp, Tp. HCM",
+      "address_type": "官网分店地址",
+      "country_note": "按官网越南经营联系地址归类；进口品牌来源国不等于店铺所在国。",
+      "company_source": "https://nhathuockhangviet.com/",
+      "source_date": "2026-10-14",
+      "products": [
+        {
+          "url": "https://nhathuockhangviet.com/san-pham/vien-uong-trang-da-glutathione-600/",
+          "observedTitle": "Viên Uống Glutathione 600 Dr Lacir: Trắng Da & Mờ Nám Mẫu Mới 2026"
+        },
+        {
+          "url": "https://nhathuockhangviet.com/san-pham/sam-to-nu-collagen-puecolazen-kohinoor/",
+          "observedTitle": "Viên sâm tố nữ Collagen Puecolazen Kohinoor chính hãng – Bổ sung nội tiết tố nữ"
+        },
+        {
+          "url": "https://nhathuockhangviet.com/san-pham/triple-white-glutathione/",
+          "observedTitle": "Viên uống trắng da chống nắng Triple White Glutathione 50 viên chính hãng"
+        },
+        {
+          "url": "https://nhathuockhangviet.com/san-pham/vien-uong-glutathione-setria-500mg-codeage/",
+          "observedTitle": "Viên Uống Glutathione SETRIA 500mg Codeage – Chống Oxy Hóa, Tăng Trắng Da, Giảm Nám Hiệu Quả"
+        },
+        {
+          "url": "https://nhathuockhangviet.com/san-pham/vien-uong-chong-nang-polyphenols-broad-spectrum/",
+          "observedTitle": "Viên Uống Chống Nắng Polyphenols Broad Spectrum – Tăng Cường Bảo Vệ Da, Ngăn Tia UV Từ Bên Trong"
+        },
+        {
+          "url": "https://nhathuockhangviet.com/san-pham/codeage-liposomal-vitamin-c-180/",
+          "observedTitle": "Codeage Liposomal Vitamin C 180 Viên – Bổ Sung Vitamin C, Làm Sáng Da, Ngăn Ngừa Lão Hóa"
+        },
+        {
+          "url": "https://nhathuockhangviet.com/san-pham/vien-uong-ho-tro-trang-da-codeage-liposomal-glutathione-60-vien/",
+          "observedTitle": "Viên uống hỗ trợ trắng da CodeAge Liposomal Glutathione 60 viên"
+        },
+        {
+          "url": "https://nhathuockhangviet.com/san-pham/giam-can-oz-slim/",
+          "observedTitle": "Viên uống giảm cân Oz Slim 40 viên chính hãng của Mỹ"
+        },
+        {
+          "url": "https://nhathuockhangviet.com/san-pham/vien-uong-tan-mo-bung-genie-demar87-cell-professional-belly-balance/",
+          "observedTitle": "Viên uống tan mỡ bụng Genie Demar87 Cell hàn quốc"
+        },
+        {
+          "url": "https://nhathuockhangviet.com/san-pham/vien-uong-slimaura-care-x3/",
+          "observedTitle": "Viên Uống SlimAura Care X3 – Bí Quyết Giảm Cân, Giữ Dáng Thon Gọn, Tự Tin Tỏa Sáng"
+        }
+      ]
+    }
+  ]
+}

@@ -16,7 +16,7 @@ export function matchKeywords(product,keywords){
     const prefix=normalized.slice(Math.max(start,match.index-150),match.index);
     const context=normalized.slice(Math.max(0,match.index-120),Math.min(normalized.length,match.index+term.length+180));
     // Warning and negation mentions remain visible, but are not treated as benefits.
-    const flagged=/\b(not|no|without|avoid|contraindicat\w*|consult|warning|pregnant|diagnose|treat|cure|prevent)\b|不适用|不能|禁用|警告|咨询医生/.test(prefix);
+    const flagged=/\b(not|no|without|avoid|contraindicat\w*|consult|warning|pregnant|diagnose|treat|cure|prevent)\b|không|chống chỉ định|cảnh báo|tham khảo ý kiến|不适用|不能|禁用|警告|咨询医生/.test(prefix);
     const hit={keyword_id:k.id,matched_term:term,evidence_text:context,evidence_scope:flagged?'warning_or_negation':scope};
     if(!best||best.evidence_scope==='warning_or_negation')best=hit;
    }
