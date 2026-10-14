@@ -1,9 +1,21 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {prepareTikTokRecord,conceptMatches} from '../server/tiktok-import.mjs';
+import {prepareTikTokRecord,conceptMatches,analyzeTikTokRecord} from '../server/tiktok-import.mjs';
 import {productWhere,queryOptions} from '../server/repository.mjs';
 import {filterRows} from '../src/preview-api.mjs';
 const fixture={platform_product_id:'123',name_original:'Magnesium Sleep Capsules',shop_name:'Test Shop',platform_country:'越南',country_evidence:'页面国家筛选：越南',research_url:'https://echotik.live/product/123',description_text:'Ingredients: Magnesium 200 mg. Supports sleep.'};
+test('Listing titles identify explicit ingredients without claiming a verified formula or dose',async()=>{
+ const a=await analyzeTikTokRecord({...fixture,name_original:'5g Creatine + Dandelion & Elderberry',description_text:''});
+ assert.deepEqual(new Set(a.ingredients.map(i=>i.canonical_key)),new Set(['creatine','dandelion','elderberry']));
+ assert.ok(a.ingredients.every(i=>i.evidence_scope==='title_mention'&&i.amount_text===null));
+ assert.match(a.warnings.join(' '),/尚未取得完整配方/);
+ const b=await analyzeTikTokRecord(fixture);
+ assert.equal(b.ingredients[0].evidence_scope,'label_text');assert.equal(b.ingredients[0].amount_text,'200 mg');
+ const c=await analyzeTikTokRecord({...fixture,name_original:'Caffeine-free capsules without melatonin',description_text:''});
+ assert.equal(c.ingredients.length,0);
+ const d=await analyzeTikTokRecord({...fixture,name_original:'Vitamin B12 capsules',description_text:''});
+ assert.deepEqual(d.ingredients.map(i=>i.canonical_key),['vitamin_b12']);
+});
 test('TikTok identity is stable across URLs and separates national storefronts',()=>{
  const a=prepareTikTokRecord(fixture),b=prepareTikTokRecord({...fixture,research_url:'https://echotik.live/product/123?view=detail'}),c=prepareTikTokRecord({...fixture,platform_country:'美国'});
  assert.equal(a.source_identity,b.source_identity);assert.notEqual(a.source_identity,c.source_identity);

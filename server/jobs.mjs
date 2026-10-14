@@ -1,7 +1,7 @@
 import {randomUUID} from 'node:crypto';
 import {pool,jsonValue,requireApproved,requireSiteApproved,assertSiteAllowed,transaction,AppError} from './db.mjs';
 import {crawlSite} from './crawler.mjs';
-import {analyzeProduct} from './analysis.mjs';
+import {analyzeProduct,analyzeTikTokRecord} from './analysis.mjs';
 import {saveProduct,productDetail,replaceIngredients} from './repository.mjs';
 import {config} from './config.mjs';
 import {beginSiteRun,updateRunProgress,finishSiteRun} from './site-runs.mjs';
@@ -51,7 +51,7 @@ export async function processClaimedJob(job){
     try{for(const id of options.productIds){
      await check(job.id);const product=await productDetail(id);
      if(product.site_id&&!runs.has(product.site_id))runs.set(product.site_id,{...await beginSiteRun(product.site_id,job.id,'analyze'),processed:0});
-     const run=runs.get(product.site_id);const analysis=await analyzeProduct(product,{useAi:options.useAi});
+     const run=runs.get(product.site_id);const analysis=product.source_platform==='tiktok'&&jsonValue(product.raw_data)?.content_scope==='listing_title'?await analyzeTikTokRecord({...product,description_text:''}):await analyzeProduct(product,{useAi:options.useAi});
      await transaction(async c=>{await requireSiteApproved(product.site_id,c,true);const [[jobState]]=await c.query('SELECT cancel_requested FROM si_jobs WHERE id=? FOR UPDATE',[job.id]);if(jobState.cancel_requested)throw new AppError(409,'任务已取消','JOB_CANCELLED');await c.query('UPDATE si_products SET name_zh=?,translation_status=?,dosage_form=?,serving_size=?,analysis_status=?,analysis=? WHERE id=?',[analysis.name_zh,analysis.translation_status,analysis.dosage_form,analysis.serving_size||null,analysis.analysis_status,JSON.stringify(analysis),id]);await replaceIngredients(c,id,analysis.ingredients);await syncProductKeywords(c,id,product);});
      if(run){run.processed++;await updateRunProgress(run.id,run.processed);}progress.done++;progress.products++;await pool.query('UPDATE si_jobs SET progress=? WHERE id=?',[JSON.stringify(progress),job.id]);
     }

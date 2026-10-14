@@ -4,6 +4,26 @@ import {nutritionRows} from './parser.mjs';
 import {vietnameseIngredients,translateVietnameseTitle} from './vietnamese.mjs';
 
 export const ingredientCatalog=[
+ ['inositol','肌醇',['myo-inositol','myo inositol','inositol']],
+ ['bcaa','支链氨基酸',['bcaa','branched chain amino acids']],
+ ['maca','玛咖',['maca']],
+ ['dandelion','蒲公英',['dandelion']],
+ ['cleavers','猪殃殃（Cleavers）',['cleavers']],
+ ['burdock','牛蒡',['burdock']],
+ ['elderberry','接骨木莓',['elderberry']],
+ ['echinacea','紫锥菊',['echinacea']],
+ ['oregano','牛至',['oregano']],
+ ['black_seed','黑种草籽',['black seed','nigella sativa']],
+ ['saw_palmetto','锯棕榈',['saw palmetto']],
+ ['pumpkin_seed','南瓜籽',['pumpkin seed']],
+ ['caffeine','咖啡因',['caffeine']],
+ ['whey_protein','乳清蛋白',['whey protein']],
+ ['tmg','三甲基甘氨酸（TMG）',['trimethylglycine','tmg']],
+ ['hmb','β-羟基-β-甲基丁酸（HMB）',['hmb']],
+ ['shilajit','喜来芝（Shilajit）',['shilajit']],
+ ['sea_moss','海藻（Sea Moss）',['sea moss']],
+ ['cranberry','蔓越莓',['cranberry']],
+ ['d_mannose','D-甘露糖',['d-mannose','d mannose']],
  ['magnesium','镁',['magnesium','magnésium','magnesiumbisglycinat','镁']],
  ['vitamin_d','维生素D',['vitamin d3','vitamin d2','vitamine d3','vitamine d2','vitamin d','vitamine d','维生素D3','维生素D2','维生素D']],
  ['vitamin_c','维生素C',['vitamin c','vitamine c','维生素C']],
@@ -61,7 +81,7 @@ export const ingredientCatalog=[
  ['guar_fiber','瓜尔豆膳食纤维',['sunfiber','guar fiber']],
 ].map(([key,name,aliases])=>({key,name,aliases:[...aliases,...(vietnameseIngredients[key]||[])]}));
 const escaped=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
-const aliasPattern=a=>new RegExp((/^[\x00-\x7F]+$/.test(a)?'(?<![a-z])':'')+escaped(a)+(/^[\x00-\x7F]+$/.test(a)?'(?![a-z])':''),'i');
+const aliasPattern=a=>new RegExp((/^[\x00-\x7F]+$/.test(a)?'(?<![a-z0-9])':'')+escaped(a)+(/^[\x00-\x7F]+$/.test(a)?'(?![a-z0-9])':''),'i');
 export function ruleAnalysis(product){
  const text=product.description_text||'';
  const labelIndex=text.search(/supplement facts|nutrition facts|(?<!other )ingredients\s*[:：]|composition\s*[:：]|ingr[ée]dients\s*[:：]|zutaten\s*[:：]|bảng thành phần|thành phần\s*[:：]|成分\s*[:：]/i);
@@ -77,7 +97,10 @@ export function ruleAnalysis(product){
   const source=labelRow?labelRow.name:scope;
   const alias=entry.aliases.find(a=>aliasPattern(a).test(source));if(!alias)continue;
   const matches=[...source.matchAll(new RegExp(aliasPattern(alias).source,'ig'))];
-  const match=matches.find(m=>!/^\s+(?:stearate|pantothenate|dioxide)\b/i.test(source.slice(m.index+m[0].length)));
+  const match=matches.find(m=>{
+   const before=source.slice(Math.max(0,m.index-35),m.index),after=source.slice(m.index+m[0].length);
+   return !/^\s+(?:stearate|pantothenate|dioxide)\b/i.test(after)&&!/^\s*[-–]?\s*free\b/i.test(after)&&!/(?:\bno|\bwithout|\bfree\s+of)\s*$/i.test(before);
+  });
   if(!match)continue;
   const start=match.index,evidence=labelRow?labelRow.evidence:scope.slice(Math.max(0,start-30),start+220).trim();
   const doseSource=labelRow?labelRow.amount:scope.slice(start+match[0].length,start+match[0].length+170);
@@ -122,4 +145,15 @@ export async function analyzeProduct(product,{useAi=true}={}){
   if(!content)throw new Error('AI服务未返回分析文本');
   return {...validateAiAnalysis(JSON.parse(content),product),serving_size:baseline.serving_size};
  }catch(e){return {...baseline,method:'rule_fallback',warnings:[...baseline.warnings,'AI处理失败，本次保留规则提取结果。'],ai_error:e.message.replaceAll(config.ai.key,'[redacted]').slice(0,300)};}
+}
+
+export async function analyzeTikTokRecord(r){
+ const titleOnly=!r.description_text.trim();
+ const analysis=await analyzeProduct({name_original:r.name_original,description_text:titleOnly?r.name_original:r.description_text,url:r.research_url},{useAi:false});
+ if(titleOnly){
+  for(const i of analysis.ingredients){i.evidence_scope='title_mention';i.amount_text=null;}
+  analysis.warnings.push('仅依据商品列表标题识别成分和概念，尚未取得完整配方标签；不确认剂量或实际功效。');
+  analysis.summary=`从商品标题识别到${analysis.ingredients.length}类成分提及，完整配方待核验。`;
+ }
+ return analysis;
 }

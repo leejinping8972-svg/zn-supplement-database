@@ -2,7 +2,7 @@ import {createHash,randomUUID} from 'node:crypto';
 import {z} from 'zod';
 import {pool,transaction,requireApproved,AppError} from './db.mjs';
 import {safeError} from './jobs.mjs';
-import {analyzeProduct} from './analysis.mjs';
+import {analyzeTikTokRecord} from './analysis.mjs';
 import {replaceIngredients} from './repository.mjs';
 import {syncProductKeywords,compileKeywords,matchKeywords} from './keywords.mjs';
 import {validatePublicUrl} from './network.mjs';
@@ -13,7 +13,7 @@ export const tiktokRecord=z.object({
  shop_name:z.string().min(1).max(190),shop_url:publicUrl.nullable().default(null),
  platform_country:z.string().min(1).max(190),country_evidence:z.string().min(1).max(1500),
  product_url:publicUrl.nullable().default(null),research_url:publicUrl,
- description_text:z.string().max(80000).default(''),price:z.number().nonnegative().nullable().default(null),
+ description_text:z.string().max(80000).default(''),listing_text:z.string().max(12000).default(''),price:z.number().nonnegative().nullable().default(null),
  currency:z.string().max(8).nullable().default(null),images:z.array(publicUrl).max(12).default([])
 }).strict();
 export function prepareTikTokRecord(input){
@@ -26,6 +26,7 @@ export function conceptMatches(product,keywords){
  const topics=keywords.filter(k=>k.keyword_type==='topic');
  return matchKeywords(product,compileKeywords(topics)).filter(m=>m.evidence_scope!=='warning_or_negation').map(m=>({name_zh:topics.find(k=>k.id===m.keyword_id).name_zh,evidence_text:m.evidence_text,method:'explicit_topic_mention'}));
 }
+export {analyzeTikTokRecord} from './analysis.mjs';
 export async function importTikTokRecords(input,{sourcePage,expectedCount}={}){
  if(sourcePage!==undefined)sourcePage=publicUrl.parse(sourcePage);
  if(expectedCount!==undefined)expectedCount=z.number().int().positive().parse(expectedCount);
@@ -43,15 +44,14 @@ export async function importTikTokRecords(input,{sourcePage,expectedCount}={}){
   await pool.query('INSERT INTO si_audit_log (action,actor,details) VALUES (?,?,?)',['tiktok_import_started','local_user',JSON.stringify({batchId,sourcePage,total:records.length})]);
   for(const r of records){
    const product={name_original:r.name_original,description_text:r.description_text,raw_data:{source:'echotik_observed_page',research_url:r.research_url},url:r.url};
-   const analysis=await analyzeProduct(product,{useAi:false});const concepts=conceptMatches(product,keywords);
-   if(!r.description_text)analysis.warnings.push('仅采集到商品列表标题，缺少详情或标签，不能确认配方。');
+   const analysis=await analyzeTikTokRecord(r);const concepts=conceptMatches(product,keywords);
    const changed=await transaction(async c=>{
     const state=await requireApproved(c,true);if(state.allowedSiteIds)throw new Error('平台导入权限已改变');
     const [[job]]=await c.query('SELECT status,cancel_requested FROM si_jobs WHERE id=? FOR UPDATE',[batchId]);if(!job||job.cancel_requested||job.status!=='running')throw new AppError(409,'导入已取消','JOB_CANCELLED');
     const [[old]]=await c.query('SELECT id,analysis_status FROM si_products WHERE source_identity=? FOR UPDATE',[r.source_identity]);
     if(old?.analysis_status==='reviewed')throw new Error('该商品已人工审核，需单独复核后更新');
     const content_hash=hash(JSON.stringify(r));
-    const fields={source_platform:'tiktok',site_id:null,shop_name:r.shop_name,shop_url:r.shop_url,platform_country:r.platform_country,platform_product_id:r.platform_product_id,research_url:r.research_url,source_identity:r.source_identity,concepts:JSON.stringify(concepts),sales_country:r.platform_country,sales_country_basis:'按 TikTok 商品国家站点记录；'+r.country_evidence,sales_country_source_url:r.research_url,url:r.url,url_hash:hash(r.url),name_original:r.name_original,name_zh:analysis.name_zh,translation_status:analysis.translation_status,description_text:r.description_text,price:r.price,currency:r.currency,dosage_form:analysis.dosage_form,serving_size:analysis.serving_size||null,source_product_id:r.platform_product_id,analysis_status:analysis.analysis_status,analysis:JSON.stringify(analysis),raw_data:JSON.stringify({...product.raw_data,product_url:r.product_url,country_evidence:r.country_evidence}),content_hash};
+    const fields={source_platform:'tiktok',site_id:null,shop_name:r.shop_name,shop_url:r.shop_url,platform_country:r.platform_country,platform_product_id:r.platform_product_id,research_url:r.research_url,source_identity:r.source_identity,concepts:JSON.stringify(concepts),sales_country:r.platform_country,sales_country_basis:'按 TikTok 商品国家站点记录；'+r.country_evidence,sales_country_source_url:r.research_url,url:r.url,url_hash:hash(r.url),name_original:r.name_original,name_zh:analysis.name_zh,translation_status:analysis.translation_status,description_text:r.description_text||(r.listing_text?'EchoTik列表资料（不是完整配方；销量为采集时平台显示值）\n'+r.listing_text:''),price:r.price,currency:r.currency,dosage_form:analysis.dosage_form,serving_size:analysis.serving_size||null,source_product_id:r.platform_product_id,analysis_status:analysis.analysis_status,analysis:JSON.stringify(analysis),raw_data:JSON.stringify({...product.raw_data,product_url:r.product_url,country_evidence:r.country_evidence,listing_text:r.listing_text,content_scope:r.description_text?'product_description':'listing_title'}),content_hash};
     let id=old?.id;
     if(id)await c.query('UPDATE si_products SET '+Object.keys(fields).map(k=>k+'=?').join(',')+',last_seen_at=CURRENT_TIMESTAMP WHERE id=?',[...Object.values(fields),id]);
     else{const [saved]=await c.query('INSERT INTO si_products ('+Object.keys(fields).join(',')+') VALUES ('+Object.keys(fields).map(()=>'?').join(',')+')',Object.values(fields));id=saved.insertId;}
