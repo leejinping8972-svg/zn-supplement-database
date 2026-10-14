@@ -40,10 +40,14 @@ export async function listKeywords(q={},all=false){
  if(q.category){clauses.push('k.category=?');args.push(String(q.category).slice(0,100));}
  if(['true','false'].includes(q.enabled)){clauses.push('k.enabled=?');args.push(q.enabled==='true');}
  if(['topic','intent'].includes(q.type)){clauses.push('k.keyword_type=?');args.push(q.type);}
+ const countryClause=q.country?(q.country==='__unknown__'?" AND (p.sales_country IS NULL OR p.sales_country='')":' AND p.sales_country=?'):'';
+ const countryArgs=q.country&&q.country!=='__unknown__'?[String(q.country)]:[];
+ const from=' FROM si_keywords k LEFT JOIN (SELECT pk.keyword_id,COUNT(DISTINCT pk.product_id) product_count FROM si_product_keywords pk JOIN si_products p ON p.id=pk.product_id WHERE pk.evidence_scope<>"warning_or_negation"'+countryClause+' GROUP BY pk.keyword_id) mc ON mc.keyword_id=k.id';
+ if(q.country)clauses.push('COALESCE(mc.product_count,0)>0');
  const where=clauses.length?' WHERE '+clauses.join(' AND '):'';
- const [[{total}]]=await pool.query('SELECT COUNT(*) total FROM si_keywords k'+where,args);
+ const [[{total}]]=await pool.query('SELECT COUNT(*) total'+from+where,[...countryArgs,...args]);
  const order=q.sort==='volume'?'k.search_volume IS NULL,k.search_volume DESC,k.id':q.sort==='matches'?'product_count DESC,k.id':'k.id';
- const [rows]=await pool.query('SELECT k.*,(SELECT COUNT(*) FROM si_product_keywords pk WHERE pk.keyword_id=k.id AND pk.evidence_scope<>"warning_or_negation") product_count FROM si_keywords k'+where+' ORDER BY '+order+(all?'':' LIMIT ? OFFSET ?'),all?args:[...args,limit,(page-1)*limit]);
+ const [rows]=await pool.query('SELECT k.*,COALESCE(mc.product_count,0) product_count'+from+where+' ORDER BY '+order+(all?'':' LIMIT ? OFFSET ?'),all?[...countryArgs,...args]:[...countryArgs,...args,limit,(page-1)*limit]);
  const [categories]=await pool.query('SELECT category,COUNT(*) count FROM si_keywords GROUP BY category ORDER BY category');
  return {rows:rows.map(k=>({...k,aliases:jsonValue(k.aliases),enabled:Boolean(k.enabled)})),total,categories,page,limit};
 }

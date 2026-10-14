@@ -1,3 +1,4 @@
+import {marketSummary,scopeKeywords} from '../shared/market.mjs';
 const cache=new Map();
 export const previewDataUrl=(base,name,version)=>base+'data/'+name+'.json?v='+encodeURIComponent(version);
 async function data(name){if(!cache.has(name))cache.set(name,fetch(previewDataUrl(import.meta.env.BASE_URL,name,import.meta.env.VITE_SNAPSHOT_VERSION)).then(r=>{if(!r.ok)throw new Error('预览数据读取失败');return r.json();}).catch(e=>{cache.delete(name);throw e;}));return cache.get(name);}
@@ -7,10 +8,11 @@ export function filterRows(kind,rows,q){
   if(ids?.length&&!ids.includes(r.id))return false;
   const terms=kind==='sites'?[r.brand,r.domain,r.main_products,r.intro]:kind==='products'?[r.name_original,r.name_zh,r.brand,r.ingredient_names,r.sales_country,r.shop_name]:kind==='keywords'?[r.name_zh,r.name_en,...r.aliases]:[r.brand,r.domain];
   if(search&&!terms.join(' ').toLowerCase().includes(search))return false;
-  if(q.country&&(kind==='products'?(q.country==='__unknown__'?Boolean(r.sales_country):r.sales_country!==q.country):r.country!==q.country))return false;
+  if(q.country&&kind!=='keywords'&&(kind==='products'?(q.country==='__unknown__'?Boolean(r.sales_country):r.sales_country!==q.country):r.country!==q.country))return false;
   if(q.category&&r.category!==q.category)return false;
   if(q.china==='clue'&&!r.china_status.startsWith('中资')||q.china==='unknown'&&r.china_status.startsWith('中资'))return false;
   if(q.watched==='true'&&!r.watched)return false;
+  if(q.scope==='supplements'&&!r.supplement_category)return false;
   if(q.platform&&r.source_platform!==q.platform)return false;
   if(q.site&&r.site_id!==Number(q.site))return false;
   if(q.status&&(kind==='products'?r.analysis_status:r.status)!==q.status)return false;
@@ -27,16 +29,19 @@ export function filterRows(kind,rows,q){
 export async function previewApi(value,options={}){
  if(options.method&&!['GET','HEAD'].includes(options.method))throw new Error('这是只读预览，修改和采集请使用本地系统。');
  const url=new URL(value,'https://preview.invalid'),q=Object.fromEntries(url.searchParams),parts=url.pathname.split('/').filter(Boolean),kind=parts[0];
+ if(kind==='market')return marketSummary(await data('market'),q);
  if(kind==='overview')return data('overview');
  if(kind==='sites'&&parts[2]==='analysis-runs')return previewApi('/analysis-runs?'+new URLSearchParams({...q,site:parts[1]}));
  if(kind==='sites'&&parts[1])return (await data('sites')).find(s=>s.id===Number(parts[1]));
  if(kind==='products'&&parts[1]){const p=(await data('catalog')).find(p=>p.id===Number(parts[1]));if(!p)throw new Error('商品不存在');return (await data('products/'+p.part))[p.id];}
  const file={sites:'sites',products:'catalog',keywords:'keywords','analysis-runs':'runs'}[kind];if(!file)throw new Error('此功能仅在本地完整系统提供');
- const all=await data(file),rows=filterRows(kind,all,q),page=Math.max(1,Number(q.page)||1),limit=Math.min(100,Math.max(1,Number(q.limit)||25));
+ const all=kind==='keywords'&&q.country?scopeKeywords(await data(file),(await data('market')).products,q.country):await data(file),rows=filterRows(kind,all,q),page=Math.max(1,Number(q.page)||1),limit=Math.min(100,Math.max(1,Number(q.limit)||25));
  return {rows:rows.slice((page-1)*limit,page*limit),total:rows.length,page,limit,...(kind==='keywords'?{categories:[...new Set(all.map(k=>k.category))].map(category=>({category}))}:{})};
 }
 export async function previewExport(kind,filters,format){
- let rows=filterRows(kind,await data({sites:'sites',products:'catalog',keywords:'keywords','analysis-runs':'runs'}[kind]),filters);
+ let source=await data({sites:'sites',products:'catalog',keywords:'keywords','analysis-runs':'runs'}[kind]);
+ if(kind==='keywords'&&filters.country)source=scopeKeywords(source,(await data('market')).products,filters.country);
+ let rows=filterRows(kind,source,filters);
  if(kind==='keywords')rows=rows.map(k=>({...k,aliases:k.aliases.join('；')}));
  if(kind==='products')rows=rows.map(p=>({...p,concept_names:(p.concepts||[]).map(c=>c.name_zh).join('；'),keyword_names:p.keywords.filter(k=>k.evidence_scope!=='warning_or_negation').map(k=>k.name_zh).join('；'),image_urls:p.image_url}));
  const {exportData,siteColumns,productColumns,keywordColumns,runColumns}=await import('../server/export.mjs');

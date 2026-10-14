@@ -10,7 +10,7 @@ export function queryOptions(q={}){
  const page=Math.max(1,Math.min(100000,parseInt(q.page)||1));
  const limit=Math.max(1,Math.min(100,parseInt(q.limit)||25));
  const ids=q.ids?String(q.ids).split(',').filter(positive).slice(0,1000).map(Number):[];
- return {page,limit,ids,platform:['independent','tiktok'].includes(q.platform)?q.platform:'',search:String(q.search||'').trim().slice(0,200),country:String(q.country||'').slice(0,190),category:String(q.category||'').slice(0,190),china:q.china,watched:q.watched,site:q.site,ingredient:String(q.ingredient||'').slice(0,100),status:q.status,keyword:q.keyword,sort:q.sort};
+ return {page,limit,ids,scope:q.scope==='supplements'?'supplements':'',platform:['independent','tiktok'].includes(q.platform)?q.platform:'',search:String(q.search||'').trim().slice(0,200),country:String(q.country||'').slice(0,190),category:String(q.category||'').slice(0,190),china:q.china,watched:q.watched,site:q.site,ingredient:String(q.ingredient||'').slice(0,100),status:q.status,keyword:q.keyword,sort:q.sort};
 }
 export function siteWhere(q){
  const clauses=[],args=[];
@@ -24,6 +24,7 @@ export function siteWhere(q){
 }
 export function productWhere(q){
  const clauses=[],args=[];
+ if(q.scope==='supplements'){clauses.push("JSON_UNQUOTE(JSON_EXTRACT(p.raw_data,'$.listing_text')) REGEXP ?");args.push('(^|[\r\n])(保健食品|美容保健食品|健身保健食品)([\r\n]|$)');}
  if(q.platform){clauses.push('p.source_platform=?');args.push(q.platform);}
  if(q.country==='__unknown__')clauses.push('p.sales_country IS NULL');
  else if(q.country){clauses.push('p.sales_country=?');args.push(q.country);}

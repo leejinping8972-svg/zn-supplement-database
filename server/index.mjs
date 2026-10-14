@@ -1,3 +1,5 @@
+import {marketData} from './market.mjs';
+import {marketSummary} from '../shared/market.mjs';
 import express from 'express';
 import helmet from 'helmet';
 import path from 'node:path';
@@ -38,6 +40,7 @@ app.put('/api/search-settings',async(req,res)=>{
 });
 app.post('/api/discovery/jobs',async(req,res)=>{const data=z.object({market:z.enum(['us','gb','ca','de','fr']).default('us'),language:z.enum(['en','zh']).default('en'),keywordIds:z.array(z.number().int().positive()).min(1).max(2000).optional()}).strict().parse(req.body);res.status(201).json(await createDiscoveryJob(data));});
 const keywordSchema=z.object({name_zh:z.string().trim().min(1).max(190),name_en:z.string().trim().min(1).max(190),category:z.string().trim().min(1).max(100),aliases:z.array(z.string().trim().min(1).max(190)).max(30).default([]),enabled:z.boolean().default(true),keyword_type:z.enum(['topic','intent']).default('topic')}).strict();
+app.get('/api/market',async(req,res)=>res.json(marketSummary(await marketData(),req.query)));
 app.get('/api/keywords',async(req,res)=>res.json(await listKeywords(req.query)));
 app.post('/api/keywords',async(req,res)=>res.status(201).json(await saveKeyword(null,keywordSchema.parse(req.body))));
 app.patch('/api/keywords/:id',async(req,res)=>res.json(await saveKeyword(idSchema.parse(req.params.id),keywordSchema.parse(req.body))));
