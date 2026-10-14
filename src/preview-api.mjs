@@ -4,9 +4,10 @@ export function filterRows(kind,rows,q){
  const search=(q.search||'').trim().toLowerCase(),ids=q.ids?.split(',').map(Number);
  let result=rows.filter(r=>{
   if(ids?.length&&!ids.includes(r.id))return false;
-  const terms=kind==='sites'?[r.brand,r.domain,r.main_products,r.intro]:kind==='products'?[r.name_original,r.name_zh,r.brand,r.ingredient_names]:kind==='keywords'?[r.name_zh,r.name_en,...r.aliases]:[r.brand,r.domain];
+  const terms=kind==='sites'?[r.brand,r.domain,r.main_products,r.intro]:kind==='products'?[r.name_original,r.name_zh,r.brand,r.ingredient_names,r.sales_country]:kind==='keywords'?[r.name_zh,r.name_en,...r.aliases]:[r.brand,r.domain];
   if(search&&!terms.join(' ').toLowerCase().includes(search))return false;
-  if(q.country&&r.country!==q.country||q.category&&r.category!==q.category)return false;
+  if(q.country&&(kind==='products'?(q.country==='__unknown__'?Boolean(r.sales_country):r.sales_country!==q.country):r.country!==q.country))return false;
+  if(q.category&&r.category!==q.category)return false;
   if(q.china==='clue'&&!r.china_status.startsWith('中资')||q.china==='unknown'&&r.china_status.startsWith('中资'))return false;
   if(q.watched==='true'&&!r.watched)return false;
   if(q.site&&r.site_id!==Number(q.site))return false;

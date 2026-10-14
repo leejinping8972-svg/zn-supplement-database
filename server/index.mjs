@@ -5,6 +5,7 @@ import fs from 'node:fs';
 import {z} from 'zod';
 import {config,appRoot,publicConfig} from './config.mjs';
 import {pool,approval,transaction,AppError,requireSiteApproved} from './db.mjs';
+import {migrateSalesCountry} from './sales-country.mjs';
 import {listSiteRuns} from './site-runs.mjs';
 import {dashboard,listSites,listProducts,siteDetail,productDetail} from './repository.mjs';
 import {exportData,siteColumns,productColumns,runColumns,keywordColumns} from './export.mjs';
@@ -107,7 +108,9 @@ app.use((error,req,res,next)=>{
  if(status>=500)console.error('请求失败:',error.code||'ERROR');
  res.status(status).json({error:validation?'参数格式不正确':status>=500?'数据库或服务暂时不可用，请稍后重试':safeError(error),code:validation?'VALIDATION_ERROR':error.code||'REQUEST_FAILED'});
 });
-await pool.query('SELECT 1');await recoverDiscoveryJobs();await startWorker();startDiscoveryWorker();
+const migrationConnection=await pool.getConnection();
+try{await migrateSalesCountry(migrationConnection);}finally{migrationConnection.release();}
+await recoverDiscoveryJobs();await startWorker();startDiscoveryWorker();
 const server=app.listen(config.port,config.host,()=>console.log(`ZN保健品数据库 http://${config.host}:${config.port} | database=${config.db.database}`));
 server.on('error',e=>{console.error('服务启动失败:',e.code);process.exitCode=1;pool.end();});
 async function shutdown(){server.close();stopDiscoveryWorker();await stopWorker();await pool.end();process.exit(0);}

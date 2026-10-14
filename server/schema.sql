@@ -37,6 +37,9 @@ CREATE TABLE IF NOT EXISTS si_products (
   id BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   site_id BIGINT UNSIGNED NOT NULL,
   url TEXT NOT NULL,
+  sales_country VARCHAR(190) NULL,
+  sales_country_basis TEXT NULL,
+  sales_country_source_url TEXT NULL,
   url_hash CHAR(64) NOT NULL,
   source_product_id VARCHAR(190),
   name_original VARCHAR(512) NOT NULL,
@@ -57,6 +60,7 @@ CREATE TABLE IF NOT EXISTS si_products (
   updated_at TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   UNIQUE KEY uniq_product_url (site_id,url_hash),
   INDEX idx_product_site (site_id),
+  INDEX idx_product_sales_country (sales_country),
   INDEX idx_product_analysis (analysis_status),
   CONSTRAINT fk_product_site FOREIGN KEY (site_id) REFERENCES si_sites(id)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

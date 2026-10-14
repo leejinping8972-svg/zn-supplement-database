@@ -2,6 +2,7 @@ import fs from 'node:fs/promises';
 import path from 'node:path';
 import mysql from 'mysql2/promise';
 import {config,appRoot} from './config.mjs';
+import {migrateSalesCountry} from './sales-country.mjs';
 
 export async function initialize(){
  const {database,...options}=config.db;
@@ -22,6 +23,7 @@ export async function initialize(){
    await c.execute(`INSERT IGNORE INTO si_sites (source_key,display_order,brand,url,domain,country,category,intro,main_products,public_address,address_type,country_note,china_status,china_ops,china_summary,china_source,china_quote,company_source,source_date) VALUES (${values.map(()=>'?').join(',')})`,values);
   }
   await c.commit();
+  await migrateSalesCountry(c);
   const [[counts]]=await c.query('SELECT (SELECT COUNT(*) FROM si_sites) sites, (SELECT COUNT(*) FROM si_products) products');
   console.log(JSON.stringify({database,counts,productImport:'requires approval'}));
  }catch(e){try{await c.rollback();}catch{}throw e;}finally{await c.end();}

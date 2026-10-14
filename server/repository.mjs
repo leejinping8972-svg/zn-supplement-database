@@ -1,6 +1,7 @@
 import {pool,jsonValue,AppError,transaction,requireSiteApproved} from './db.mjs';
 import {createHash} from 'node:crypto';
 import {syncProductKeywords,productKeywords} from './keywords.mjs';
+import {salesCountryFields} from './sales-country.mjs';
 
 export const hash=value=>createHash('sha256').update(String(value)).digest('hex');
 const positive=value=>/^\d+$/.test(String(value))&&Number(value)>0;
@@ -23,7 +24,9 @@ export function siteWhere(q){
 }
 export function productWhere(q){
  const clauses=[],args=[];
- if(q.search){clauses.push('(p.name_original LIKE ? OR p.name_zh LIKE ? OR s.brand LIKE ? OR EXISTS (SELECT 1 FROM si_product_ingredients i WHERE i.product_id=p.id AND (i.name_zh LIKE ? OR i.name_original LIKE ?)))');args.push(...Array(5).fill('%'+q.search+'%'));}
+ if(q.country==='__unknown__')clauses.push('p.sales_country IS NULL');
+ else if(q.country){clauses.push('p.sales_country=?');args.push(q.country);}
+ if(q.search){clauses.push('(p.name_original LIKE ? OR p.name_zh LIKE ? OR s.brand LIKE ? OR p.sales_country LIKE ? OR EXISTS (SELECT 1 FROM si_product_ingredients i WHERE i.product_id=p.id AND (i.name_zh LIKE ? OR i.name_original LIKE ?)))');args.push(...Array(6).fill('%'+q.search+'%'));}
  if(positive(q.site)){clauses.push('p.site_id=?');args.push(Number(q.site));}
  if(positive(q.keyword)){clauses.push('EXISTS (SELECT 1 FROM si_product_keywords pk JOIN si_keywords k ON k.id=pk.keyword_id WHERE pk.product_id=p.id AND pk.keyword_id=? AND k.enabled=1 AND pk.evidence_scope<>"warning_or_negation")');args.push(Number(q.keyword));}
  if(q.ingredient){clauses.push('EXISTS (SELECT 1 FROM si_product_ingredients i WHERE i.product_id=p.id AND i.canonical_key=?)');args.push(q.ingredient);}
@@ -72,11 +75,12 @@ export async function saveProduct(site,product,analysis,jobId){
   await requireSiteApproved(site.id,c,true);
   const [[job]]=await c.query('SELECT cancel_requested FROM si_jobs WHERE id=? FOR UPDATE',[jobId]);
   if(!job||job.cancel_requested)throw new AppError(409,'任务已取消','JOB_CANCELLED');
+  const market=salesCountryFields(site);
   const contentHash=hash(JSON.stringify({name:product.name_original,description:product.description_text,price:product.price,currency:product.currency,images:product.images}));
   const [[existing]]=await c.query('SELECT id,content_hash FROM si_products WHERE site_id=? AND url_hash=?',[site.id,hash(product.url)]);
-  if(existing?.content_hash===contentHash){await c.query('UPDATE si_products SET last_seen_at=CURRENT_TIMESTAMP WHERE id=?',[existing.id]);await syncProductKeywords(c,existing.id,product);return {id:existing.id,changed:false};}
-  const values=[site.id,product.url,hash(product.url),product.source_product_id||null,product.name_original,analysis.name_zh,analysis.translation_status,product.description_text,product.price,product.currency,analysis.dosage_form||null,product.serving_size||analysis.serving_size||null,product.source_language||null,analysis.analysis_status,JSON.stringify(analysis),JSON.stringify(product.raw_data||{}),contentHash];
-  const [result]=await c.query(`INSERT INTO si_products (site_id,url,url_hash,source_product_id,name_original,name_zh,translation_status,description_text,price,currency,dosage_form,serving_size,source_language,analysis_status,analysis,raw_data,content_hash) VALUES (${values.map(()=>'?').join(',')}) ON DUPLICATE KEY UPDATE name_original=VALUES(name_original),name_zh=VALUES(name_zh),translation_status=VALUES(translation_status),description_text=VALUES(description_text),price=VALUES(price),currency=VALUES(currency),dosage_form=VALUES(dosage_form),serving_size=VALUES(serving_size),source_language=VALUES(source_language),analysis_status=VALUES(analysis_status),analysis=VALUES(analysis),raw_data=VALUES(raw_data),content_hash=VALUES(content_hash),last_seen_at=CURRENT_TIMESTAMP`,values);
+  if(existing?.content_hash===contentHash){await c.query('UPDATE si_products SET sales_country=?,sales_country_basis=?,sales_country_source_url=?,last_seen_at=CURRENT_TIMESTAMP WHERE id=?',[market.sales_country,market.sales_country_basis,market.sales_country_source_url,existing.id]);await syncProductKeywords(c,existing.id,product);return {id:existing.id,changed:false};}
+  const values=[site.id,market.sales_country,market.sales_country_basis,market.sales_country_source_url,product.url,hash(product.url),product.source_product_id||null,product.name_original,analysis.name_zh,analysis.translation_status,product.description_text,product.price,product.currency,analysis.dosage_form||null,product.serving_size||analysis.serving_size||null,product.source_language||null,analysis.analysis_status,JSON.stringify(analysis),JSON.stringify(product.raw_data||{}),contentHash];
+  const [result]=await c.query(`INSERT INTO si_products (site_id,sales_country,sales_country_basis,sales_country_source_url,url,url_hash,source_product_id,name_original,name_zh,translation_status,description_text,price,currency,dosage_form,serving_size,source_language,analysis_status,analysis,raw_data,content_hash) VALUES (${values.map(()=>'?').join(',')}) ON DUPLICATE KEY UPDATE sales_country=VALUES(sales_country),sales_country_basis=VALUES(sales_country_basis),sales_country_source_url=VALUES(sales_country_source_url),name_original=VALUES(name_original),name_zh=VALUES(name_zh),translation_status=VALUES(translation_status),description_text=VALUES(description_text),price=VALUES(price),currency=VALUES(currency),dosage_form=VALUES(dosage_form),serving_size=VALUES(serving_size),source_language=VALUES(source_language),analysis_status=VALUES(analysis_status),analysis=VALUES(analysis),raw_data=VALUES(raw_data),content_hash=VALUES(content_hash),last_seen_at=CURRENT_TIMESTAMP`,values);
   const id=existing?.id||result.insertId;
   await c.query('DELETE FROM si_product_images WHERE product_id=?',[id]);
   for(const [order,img] of (product.images||[]).entries())await c.query('INSERT INTO si_product_images (product_id,image_url,alt_text,sort_order) VALUES (?,?,?,?)',[id,img.url,String(img.alt||product.name_original).slice(0,512),order]);
