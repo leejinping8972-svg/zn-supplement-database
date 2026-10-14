@@ -3,6 +3,7 @@
   "scope": "人工筛选的商品样本，非全站全量抓取；非广告投放或销量排名。",
   "startedAt": "2026-10-14T08:25:27.510Z",
   "finishedAt": "2026-10-14T08:31:12.756Z",
+  "verifiedAt": "2026-10-14T08:41:04.971Z",
   "aliasesAdded": 58,
   "totalProducts": 59,
   "sites": [
@@ -11,12 +12,28 @@
       "domain": "hangmychinhhang.us",
       "products": 20,
       "withImages": 20,
-      "withIngredients": 17,
+      "withIngredients": 19,
       "withKeywords": 20,
       "keywordLinks": 184,
-      "analysisCount": 1,
-      "analyzedAt": "2026-10-14T08:25:31.000Z",
-      "finishedAt": "2026-10-14T08:27:59.000Z",
+      "analysisCount": 2,
+      "analysisRuns": [
+        {
+          "run_number": 2,
+          "status": "completed",
+          "products_processed": 20,
+          "started_at": "2026-10-14T08:40:03.000Z",
+          "finished_at": "2026-10-14T08:40:40.000Z"
+        },
+        {
+          "run_number": 1,
+          "status": "completed",
+          "products_processed": 20,
+          "started_at": "2026-10-14T08:25:31.000Z",
+          "finished_at": "2026-10-14T08:27:59.000Z"
+        }
+      ],
+      "analyzedAt": "2026-10-14T08:40:03.000Z",
+      "finishedAt": "2026-10-14T08:40:40.000Z",
       "translationStatus": [
         "partial"
       ],
@@ -27,12 +44,28 @@
       "domain": "kenhxachtayduc.com",
       "products": 16,
       "withImages": 16,
-      "withIngredients": 16,
+      "withIngredients": 15,
       "withKeywords": 16,
       "keywordLinks": 93,
-      "analysisCount": 1,
-      "analyzedAt": "2026-10-14T08:27:59.000Z",
-      "finishedAt": "2026-10-14T08:29:04.000Z",
+      "analysisCount": 2,
+      "analysisRuns": [
+        {
+          "run_number": 2,
+          "status": "completed",
+          "products_processed": 16,
+          "started_at": "2026-10-14T08:40:16.000Z",
+          "finished_at": "2026-10-14T08:40:40.000Z"
+        },
+        {
+          "run_number": 1,
+          "status": "completed",
+          "products_processed": 16,
+          "started_at": "2026-10-14T08:27:59.000Z",
+          "finished_at": "2026-10-14T08:29:04.000Z"
+        }
+      ],
+      "analyzedAt": "2026-10-14T08:40:16.000Z",
+      "finishedAt": "2026-10-14T08:40:40.000Z",
       "translationStatus": [
         "partial"
       ],
@@ -46,9 +79,25 @@
       "withIngredients": 9,
       "withKeywords": 8,
       "keywordLinks": 20,
-      "analysisCount": 1,
-      "analyzedAt": "2026-10-14T08:29:04.000Z",
-      "finishedAt": "2026-10-14T08:30:06.000Z",
+      "analysisCount": 2,
+      "analysisRuns": [
+        {
+          "run_number": 2,
+          "status": "completed",
+          "products_processed": 10,
+          "started_at": "2026-10-14T08:40:26.000Z",
+          "finished_at": "2026-10-14T08:40:40.000Z"
+        },
+        {
+          "run_number": 1,
+          "status": "completed",
+          "products_processed": 10,
+          "started_at": "2026-10-14T08:29:04.000Z",
+          "finished_at": "2026-10-14T08:30:06.000Z"
+        }
+      ],
+      "analyzedAt": "2026-10-14T08:40:26.000Z",
+      "finishedAt": "2026-10-14T08:40:40.000Z",
       "translationStatus": [
         "partial",
         "pending"
@@ -63,9 +112,25 @@
       "withIngredients": 2,
       "withKeywords": 3,
       "keywordLinks": 9,
-      "analysisCount": 1,
-      "analyzedAt": "2026-10-14T08:30:06.000Z",
-      "finishedAt": "2026-10-14T08:30:25.000Z",
+      "analysisCount": 2,
+      "analysisRuns": [
+        {
+          "run_number": 2,
+          "status": "completed",
+          "products_processed": 3,
+          "started_at": "2026-10-14T08:40:32.000Z",
+          "finished_at": "2026-10-14T08:40:40.000Z"
+        },
+        {
+          "run_number": 1,
+          "status": "completed",
+          "products_processed": 3,
+          "started_at": "2026-10-14T08:30:06.000Z",
+          "finished_at": "2026-10-14T08:30:25.000Z"
+        }
+      ],
+      "analyzedAt": "2026-10-14T08:40:32.000Z",
+      "finishedAt": "2026-10-14T08:40:40.000Z",
       "translationStatus": [
         "partial"
       ],
@@ -79,9 +144,25 @@
       "withIngredients": 7,
       "withKeywords": 10,
       "keywordLinks": 70,
-      "analysisCount": 1,
-      "analyzedAt": "2026-10-14T08:30:25.000Z",
-      "finishedAt": "2026-10-14T08:31:12.000Z",
+      "analysisCount": 2,
+      "analysisRuns": [
+        {
+          "run_number": 2,
+          "status": "completed",
+          "products_processed": 10,
+          "started_at": "2026-10-14T08:40:34.000Z",
+          "finished_at": "2026-10-14T08:40:40.000Z"
+        },
+        {
+          "run_number": 1,
+          "status": "completed",
+          "products_processed": 10,
+          "started_at": "2026-10-14T08:30:25.000Z",
+          "finished_at": "2026-10-14T08:31:12.000Z"
+        }
+      ],
+      "analyzedAt": "2026-10-14T08:40:34.000Z",
+      "finishedAt": "2026-10-14T08:40:40.000Z",
       "translationStatus": [
         "partial"
       ],

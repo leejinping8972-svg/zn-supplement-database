@@ -64,9 +64,9 @@ const escaped=s=>s.replace(/[.*+?^${}()|[\]\\]/g,'\\$&');
 const aliasPattern=a=>new RegExp((/^[\x00-\x7F]+$/.test(a)?'(?<![a-z])':'')+escaped(a)+(/^[\x00-\x7F]+$/.test(a)?'(?![a-z])':''),'i');
 export function ruleAnalysis(product){
  const text=product.description_text||'';
- const labelIndex=text.search(/supplement facts|nutrition facts|(?<!other )ingredients\s*[:：]|composition\s*[:：]|ingr[ée]dients\s*[:：]|zutaten\s*[:：]|thành phần\s*[:：]|成分\s*[:：]/i);
+ const labelIndex=text.search(/supplement facts|nutrition facts|(?<!other )ingredients\s*[:：]|composition\s*[:：]|ingr[ée]dients\s*[:：]|zutaten\s*[:：]|bảng thành phần|thành phần\s*[:：]|成分\s*[:：]/i);
  let scope=labelIndex>=0?text.slice(labelIndex,labelIndex+12000):text;
- const end=scope.search(/other ingredients\s*[:：]|suggested (?:adult )?use|warning\s*[:：]|storage\s*[:：]|hướng dẫn sử dụng|cách dùng|lưu ý|bảo quản/i);
+ const end=scope.search(/other ingredients\s*[:：]|suggested (?:adult )?use|warning\s*[:：]|storage\s*[:：]|hướng dẫn sử dụng|cách dùng|lưu ý|bảo quản\s*[:：]/i);
  if(end>=0)scope=scope.slice(0,end);
  const raw=product.raw_data||{};
  const rows=nutritionRows(raw.body_html||raw.description_html||'');

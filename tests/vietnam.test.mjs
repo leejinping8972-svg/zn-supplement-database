@@ -19,3 +19,8 @@ test('Vietnamese label evidence and aliases associate with existing topic IDs',(
 test('WooCommerce and Vietnamese product paths are discovered',()=>{
  assert.deepEqual(productLinks('<a class="woocommerce-LoopProduct-link" href="/magie">Magie</a><a href="/san-pham/kem">Kẽm</a><a href="/blog/a">Blog</a>','https://example.com'),['https://example.com/magie','https://example.com/san-pham/kem']);
 });
+test('Preservative claims do not cut off Vietnamese ingredients and composition headings identify doses',()=>{
+ const product={name_original:'B Complex',description_text:'Không chứa chất bảo quản. Bảng Thành Phần: Vitamin B1: 6 mg. Bảo quản: nơi khô ráo.',raw_data:{}};
+ const result=ruleAnalysis(product);assert.equal(result.ingredients.find(i=>i.canonical_key==='thiamin')?.amount_text,'6 mg');
+ const mentions=ruleAnalysis({...product,description_text:'Không chứa chất bảo quản. Magnesium hỗ trợ sức khỏe.'});assert.equal(mentions.ingredients[0].canonical_key,'magnesium');assert.equal(mentions.ingredients[0].evidence_scope,'description_mention');
+});
